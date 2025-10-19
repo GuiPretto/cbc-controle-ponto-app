@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { ipcMain, nativeTheme, app, BrowserWindow } from "electron";
+import { ipcMain, BrowserWindow, nativeTheme, app } from "electron";
 import { fileURLToPath } from "node:url";
 import path$2 from "node:path";
 import require$$1 from "util";
@@ -11685,14 +11685,7 @@ var _eval = EvalError;
 var range = RangeError;
 var ref = ReferenceError;
 var syntax = SyntaxError;
-var type;
-var hasRequiredType;
-function requireType() {
-  if (hasRequiredType) return type;
-  hasRequiredType = 1;
-  type = TypeError;
-  return type;
-}
+var type = TypeError;
 var uri = URIError;
 var abs$1 = Math.abs;
 var floor$1 = Math.floor;
@@ -11938,7 +11931,7 @@ function requireCallBindApplyHelpers() {
   if (hasRequiredCallBindApplyHelpers) return callBindApplyHelpers;
   hasRequiredCallBindApplyHelpers = 1;
   var bind3 = functionBind;
-  var $TypeError2 = requireType();
+  var $TypeError2 = type;
   var $call2 = requireFunctionCall();
   var $actualApply = requireActualApply();
   callBindApplyHelpers = function callBindBasic(args) {
@@ -12011,7 +12004,7 @@ var $EvalError = _eval;
 var $RangeError = range;
 var $ReferenceError = ref;
 var $SyntaxError = syntax;
-var $TypeError$1 = requireType();
+var $TypeError$1 = type;
 var $URIError = uri;
 var abs = abs$1;
 var floor = floor$1;
@@ -12342,7 +12335,7 @@ var GetIntrinsic2 = getIntrinsic;
 var $defineProperty = GetIntrinsic2("%Object.defineProperty%", true);
 var hasToStringTag = requireShams()();
 var hasOwn$1 = hasown;
-var $TypeError = requireType();
+var $TypeError = type;
 var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
 var esSetTostringtag = function setToStringTag(object, value) {
   var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
@@ -16854,24 +16847,66 @@ const {
   getAdapter,
   mergeConfig
 } = axios;
+const API_URL = process.env.API_BASE_URL || "http://localhost:8080";
 const SERVICE_NAME = process.env.KEYTAR_SERVICE_NAME || "SERVICE_NAME";
 let accessToken = null;
 let currentIdUser = null;
+let isRefreshing = false;
+let logoutTrigger;
+function setLogoutTrigger(trigger) {
+  logoutTrigger = trigger;
+}
+async function refreshAccessToken(client) {
+  if (isRefreshing || !currentIdUser) {
+    return false;
+  }
+  isRefreshing = true;
+  try {
+    const refreshToken = await keytar.getPassword(SERVICE_NAME, currentIdUser);
+    if (!refreshToken) {
+      isRefreshing = false;
+      return false;
+    }
+    const response = await client.get(
+      `${API_URL}/v1/auth/refresh-token`,
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`
+        }
+      }
+    );
+    const { accessToken: newAccessToken } = response.data;
+    accessToken = newAccessToken;
+    isRefreshing = false;
+    return true;
+  } catch (error) {
+    console.error("Falha no Refresh Token. Forçando Logout.", error);
+    if (currentIdUser) {
+      keytar.deletePassword(SERVICE_NAME, currentIdUser);
+    }
+    if (logoutTrigger) {
+      logoutTrigger();
+    }
+    accessToken = null;
+    currentIdUser = null;
+    isRefreshing = false;
+    return false;
+  }
+}
 class BaseApiService {
   constructor() {
     __publicField(this, "client");
     // 'protected' permite que classes filhas acessem
     __publicField(this, "baseUrl");
-    __publicField(this, "serviceName");
     this.baseUrl = process.env.API_BASE_URL || "http://localhost:8080";
-    this.serviceName = process.env.KEYTAR_SERVICE_NAME || "CBC_App_Electron";
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 1e4
     });
     this.client.interceptors.request.use(
       (config2) => {
-        if (accessToken) {
+        var _a;
+        if (accessToken && !((_a = config2.url) == null ? void 0 : _a.match("refresh-token"))) {
           config2.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config2;
@@ -16885,18 +16920,19 @@ class BaseApiService {
       async (error) => {
         var _a, _b;
         const originalRequest = error.config;
-        if (error.response && error.response.status === 403 && !(originalRequest == null ? void 0 : originalRequest._retry)) {
-          return Promise.reject({
-            success: false,
-            error: "Token Expirado ou Inválido",
-            status: 403
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          });
+        const status = (_a = error.response) == null ? void 0 : _a.status;
+        if (status && (status === 401 || status === 403) && !(originalRequest == null ? void 0 : originalRequest._retry)) {
+          originalRequest._retry = true;
+          const refreshed = await refreshAccessToken(this.client);
+          if (refreshed) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return this.client(originalRequest);
+          }
         }
         const errorResponse = {
           success: false,
-          error: ((_a = error.response) == null ? void 0 : _a.data) || error.message,
-          status: (_b = error.response) == null ? void 0 : _b.status
+          error: ((_b = error.response) == null ? void 0 : _b.data) || error.message,
+          status
         };
         return Promise.reject(errorResponse);
       }
@@ -16935,17 +16971,12 @@ class BaseApiService {
         }
       };
     } catch (error) {
-      console.error(
-        "[BaseAPI] Login Failed:",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error.error || error.message
-      );
-      const status = error.status || 0;
-      const msg = (
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        error.error || (status === 401 ? "Credenciais Inválidas" : "Erro de Rede")
-      );
-      return { success: false, error: msg, status };
+      const mappedError = this.handleApiError(error);
+      return {
+        success: mappedError.success,
+        error: mappedError.error,
+        status: mappedError.status
+      };
     }
   }
   async performLogout() {
@@ -16967,23 +16998,104 @@ class BaseApiService {
     }
     return { success: false };
   }
+  handleApiError(error) {
+    var _a, _b;
+    if (typeof error === "object" && error !== null && "success" in error) {
+      return error;
+    }
+    if (axios.isAxiosError(error)) {
+      const errorData = ((_a = error.response) == null ? void 0 : _a.data) || {};
+      return {
+        success: false,
+        error: errorData.message || error.message,
+        status: (_b = error.response) == null ? void 0 : _b.status
+      };
+    }
+    const errorMessage = error instanceof Error ? error.message : "Ocorreu um erro desconhecido na aplicação.";
+    return {
+      success: false,
+      error: errorMessage,
+      status: 500
+    };
+  }
 }
 const baseApiService = new BaseApiService();
+const sendLogoutEvent = () => {
+  const window2 = BrowserWindow.getAllWindows()[0];
+  if (window2 && !window2.isDestroyed()) {
+    window2.webContents.send("auth:logout-forced");
+  }
+};
+setLogoutTrigger(sendLogoutEvent);
 const authHandlers = () => {
   ipcMain.handle(
     "auth:login",
-    (event, username, password) => baseApiService.performLogin(username, password)
+    (_, username, password) => baseApiService.performLogin(username, password)
   );
   ipcMain.handle("auth:logout", () => baseApiService.performLogout());
   ipcMain.handle("auth:check-token", () => baseApiService.checkStoredToken());
+};
+class GradeService extends BaseApiService {
+  constructor() {
+    super();
+  }
+  async getAll() {
+    try {
+      const response = await this.client.get(
+        "v1/grade"
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+}
+const gradeService = new GradeService();
+const gradeHandlers = () => {
+  ipcMain.handle("grade:get-all", () => gradeService.getAll());
 };
 const themeHandlers = () => {
   ipcMain.handle("get-system-theme", () => {
     return nativeTheme.shouldUseDarkColors;
   });
 };
+class UsuarioService extends BaseApiService {
+  constructor() {
+    super();
+  }
+  async register(nome, cpf, idGrade) {
+    try {
+      const response = await this.client.post(
+        "v1/usuario",
+        {
+          nome,
+          cpf,
+          idGrade
+        }
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+}
+const usuarioService = new UsuarioService();
+const usuarioHandlers = () => {
+  ipcMain.handle(
+    "usuario:register",
+    (_, nome, cpf, idGrade) => usuarioService.register(nome, cpf, idGrade)
+  );
+};
 const ipcHandlers = () => {
   authHandlers();
+  gradeHandlers();
+  usuarioHandlers();
   themeHandlers();
 };
 var main = { exports: {} };

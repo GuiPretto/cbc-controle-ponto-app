@@ -11,21 +11,71 @@ export interface UserInfo {
 
 // Resposta esperada do Spring Boot no login
 
+const API_URL = process.env.API_BASE_URL || "http://localhost:8080";
 const SERVICE_NAME = process.env.KEYTAR_SERVICE_NAME || "SERVICE_NAME";
 
 // Variáveis de Estado (mantidas no escopo do módulo para acesso seguro)
 let accessToken: string | null = null;
 let currentIdUser: string | null = null;
+let isRefreshing = false;
+let logoutTrigger: (() => void) | undefined;
+
+// Função para injetar o mecanismo de envio IPC
+export function setLogoutTrigger(trigger: () => void): void {
+  logoutTrigger = trigger;
+}
+
+async function refreshAccessToken(client: AxiosInstance): Promise<boolean> {
+  if (isRefreshing || !currentIdUser) {
+    return false;
+  }
+  isRefreshing = true;
+
+  try {
+    const refreshToken = await keytar.getPassword(SERVICE_NAME, currentIdUser);
+
+    if (!refreshToken) {
+      isRefreshing = false;
+      return false;
+    }
+
+    const response = await client.get<{ accessToken: string }>(
+      `${API_URL}/v1/auth/refresh-token`,
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    );
+
+    const { accessToken: newAccessToken } = response.data;
+
+    accessToken = newAccessToken;
+    isRefreshing = false;
+    return true;
+  } catch (error) {
+    console.error("Falha no Refresh Token. Forçando Logout.", error);
+    // Limpa tokens em caso de falha no refresh
+    if (currentIdUser) {
+      keytar.deletePassword(SERVICE_NAME, currentIdUser);
+    }
+    if (logoutTrigger) {
+      logoutTrigger();
+    }
+    accessToken = null;
+    currentIdUser = null;
+    isRefreshing = false;
+    return false;
+  }
+}
 
 class BaseApiService {
   protected client: AxiosInstance; // 'protected' permite que classes filhas acessem
 
   private readonly baseUrl: string;
-  private readonly serviceName: string;
 
   constructor() {
     this.baseUrl = process.env.API_BASE_URL || "http://localhost:8080";
-    this.serviceName = process.env.KEYTAR_SERVICE_NAME || "CBC_App_Electron";
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 10000,
@@ -34,7 +84,7 @@ class BaseApiService {
     // Interceptor de Requisição (Injeta o Access Token)
     this.client.interceptors.request.use(
       (config) => {
-        if (accessToken) {
+        if (accessToken && !config.url?.match("refresh-token")) {
           config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
@@ -49,27 +99,27 @@ class BaseApiService {
       (response: AxiosResponse) => response,
       async (error) => {
         const originalRequest = error.config;
-        // Tratamento de 401 (Token Expirado)
+        const status = error.response?.status;
+
         if (
-          error.response &&
-          error.response.status === 403 &&
+          status &&
+          (status === 401 || status === 403) &&
           !originalRequest?._retry
         ) {
-          // LÓGICA DE REFRESH TOKEN IRIA AQUI
-          return Promise.reject({
-            success: false,
-            error: "Token Expirado ou Inválido",
-            status: 403,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          } as ServiceResponse<any>);
+          originalRequest._retry = true;
+          const refreshed = await refreshAccessToken(this.client);
+
+          if (refreshed) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return this.client(originalRequest);
+          }
         }
 
-        // Mapeia a resposta de erro do Axios para o formato ServiceResponse
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const errorResponse: ServiceResponse<any> = {
           success: false,
           error: error.response?.data || error.message,
-          status: error.response?.status,
+          status: status,
         };
         return Promise.reject(errorResponse);
       }
@@ -116,22 +166,14 @@ class BaseApiService {
           role: role,
         },
       };
-    } catch (error) {
-      console.error(
-        "[BaseAPI] Login Failed:",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any).error || (error as Error).message
-      );
+    } catch (error: unknown) {
+      const mappedError = this.handleApiError(error);
 
-      // Retorna um erro padronizado caso a requisição falhe antes mesmo do interceptor
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const status = (error as any).status || 0;
-      const msg =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any).error ||
-        (status === 401 ? "Credenciais Inválidas" : "Erro de Rede");
-
-      return { success: false, error: msg, status: status };
+      return {
+        success: mappedError.success,
+        error: mappedError.error,
+        status: mappedError.status,
+      } as ServiceResponse<UserInfo>;
     }
   }
 
@@ -159,6 +201,37 @@ class BaseApiService {
       return { success: true, data: { needsRefresh: true } };
     }
     return { success: false };
+  }
+
+  protected handleApiError(error: unknown): ServiceResponse<unknown> {
+    // Verifica se o erro é uma ServiceResponse padronizada (vindo do interceptor)
+    if (typeof error === "object" && error !== null && "success" in error) {
+      // Se for, apenas retorna (com ServiceResponse<unknown>)
+      return error as ServiceResponse<unknown>;
+    }
+
+    // Se for um erro do Axios (não padronizado)
+    if (axios.isAxiosError(error)) {
+      const errorData =
+        (error.response?.data as { message?: string; error?: string }) || {};
+      return {
+        success: false,
+        error: errorData.message || error.message,
+        status: error.response?.status,
+      };
+    }
+
+    // Erro desconhecido (devemos usar Type Guard para extrair a mensagem)
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "Ocorreu um erro desconhecido na aplicação.";
+
+    return {
+      success: false,
+      error: errorMessage,
+      status: 500,
+    };
   }
 }
 

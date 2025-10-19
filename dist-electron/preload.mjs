@@ -25,6 +25,15 @@ electron.contextBridge.exposeInMainWorld("api", {
   auth: {
     login: (username, password) => electron.ipcRenderer.invoke("auth:login", username, password),
     logout: () => electron.ipcRenderer.invoke("auth:logout"),
-    checkToken: () => electron.ipcRenderer.invoke("auth:check-token")
+    checkToken: () => electron.ipcRenderer.invoke("auth:check-token"),
+    onLogoutForced: (callback) => {
+      electron.ipcRenderer.on("auth:logout-forced", callback);
+    }
+  },
+  grade: {
+    getAll: () => electron.ipcRenderer.invoke("grade:get-all")
+  },
+  usuario: {
+    register: (nome, cpf, idGrade) => electron.ipcRenderer.invoke("usuario:register", nome, cpf, idGrade)
   }
 });

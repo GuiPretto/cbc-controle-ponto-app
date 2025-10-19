@@ -39,7 +39,6 @@ const Login = () => {
     try {
       // Chamada segura via IPC (auth:login)
       const result = await authLogin(cpf, password);
-      console.log(result);
       if (result.success) {
         // Sucesso no login, o token foi armazenado no Main Process.
         // O AuthProvider (App.tsx) detectará a mudança de estado e fará o redirecionamento

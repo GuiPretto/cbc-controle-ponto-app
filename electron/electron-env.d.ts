@@ -53,6 +53,13 @@ declare global {
         ): Promise<ServiceResponse<UserInfo>>;
         logout(): Promise<ServiceResponse<null>>;
         checkToken(): Promise<ServiceResponse<{ needsRefresh: boolean }>>;
+        onLogoutForced(callback: () => void): void;
+      };
+      grade: {
+        getAll();
+      };
+      usuario: {
+        register(nome: string, cpf: string, idGrade: number);
       };
     };
   }

@@ -1,10 +1,21 @@
-import { ipcMain } from "electron";
-import BaseApiService from "../../electron/services/BaseApiService";
+import { BrowserWindow, ipcMain } from "electron";
+import BaseApiService, {
+  setLogoutTrigger,
+} from "../../electron/services/BaseApiService";
 
 const baseApiService = new BaseApiService();
 
+const sendLogoutEvent = () => {
+  const window = BrowserWindow.getAllWindows()[0];
+  if (window && !window.isDestroyed()) {
+    window.webContents.send("auth:logout-forced");
+  }
+};
+
+setLogoutTrigger(sendLogoutEvent);
+
 const authHandlers = () => {
-  ipcMain.handle("auth:login", (event, username: string, password: string) =>
+  ipcMain.handle("auth:login", (_, username: string, password: string) =>
     baseApiService.performLogin(username, password)
   );
 

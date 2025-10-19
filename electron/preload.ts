@@ -28,5 +28,15 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.invoke("auth:login", username, password),
     logout: () => ipcRenderer.invoke("auth:logout"),
     checkToken: () => ipcRenderer.invoke("auth:check-token"),
+    onLogoutForced: (callback: () => void) => {
+      ipcRenderer.on("auth:logout-forced", callback);
+    },
+  },
+  grade: {
+    getAll: () => ipcRenderer.invoke("grade:get-all"),
+  },
+  usuario: {
+    register: (nome: string, cpf: string, idGrade: number) =>
+      ipcRenderer.invoke("usuario:register", nome, cpf, idGrade),
   },
 });

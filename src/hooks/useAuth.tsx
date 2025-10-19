@@ -51,6 +51,13 @@ export const AuthProvider: React.FC<{
       }
     };
     checkInitialAuth();
+
+    if (window.api && window.api.auth && window.api.auth.onLogoutForced) {
+      // Se o Main Process mandar o evento, força o estado para false
+      window.api.auth.onLogoutForced(() => {
+        setIsAuthenticated(false);
+      });
+    }
   }, []);
 
   // 2. Função de Login (Chama o IPC)
