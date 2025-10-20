@@ -11685,14 +11685,7 @@ var _eval = EvalError;
 var range = RangeError;
 var ref = ReferenceError;
 var syntax = SyntaxError;
-var type;
-var hasRequiredType;
-function requireType() {
-  if (hasRequiredType) return type;
-  hasRequiredType = 1;
-  type = TypeError;
-  return type;
-}
+var type = TypeError;
 var uri = URIError;
 var abs$1 = Math.abs;
 var floor$1 = Math.floor;
@@ -11938,7 +11931,7 @@ function requireCallBindApplyHelpers() {
   if (hasRequiredCallBindApplyHelpers) return callBindApplyHelpers;
   hasRequiredCallBindApplyHelpers = 1;
   var bind3 = functionBind;
-  var $TypeError2 = requireType();
+  var $TypeError2 = type;
   var $call2 = requireFunctionCall();
   var $actualApply = requireActualApply();
   callBindApplyHelpers = function callBindBasic(args) {
@@ -12011,7 +12004,7 @@ var $EvalError = _eval;
 var $RangeError = range;
 var $ReferenceError = ref;
 var $SyntaxError = syntax;
-var $TypeError$1 = requireType();
+var $TypeError$1 = type;
 var $URIError = uri;
 var abs = abs$1;
 var floor = floor$1;
@@ -12342,7 +12335,7 @@ var GetIntrinsic2 = getIntrinsic;
 var $defineProperty = GetIntrinsic2("%Object.defineProperty%", true);
 var hasToStringTag = requireShams()();
 var hasOwn$1 = hasown;
-var $TypeError = requireType();
+var $TypeError = type;
 var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
 var esSetTostringtag = function setToStringTag(object, value) {
   var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
@@ -16960,7 +16953,8 @@ class BaseApiService {
         refreshToken: refreshTokenResponse,
         idUser,
         username: usernameResponse,
-        role
+        role,
+        requerTrocarSenha
       } = response.data;
       accessToken = accessTokenResponse;
       currentIdUser = idUser.toString();
@@ -16974,7 +16968,8 @@ class BaseApiService {
         data: {
           id: idUser,
           username: usernameResponse,
-          role
+          role,
+          requerTrocarSenha
         }
       };
     } catch (error) {
@@ -17046,6 +17041,19 @@ class GradeService extends BaseApiService {
   constructor() {
     super();
   }
+  async get(idGrade) {
+    try {
+      const response = await this.client.get(
+        `v1/grade/${idGrade}`
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
   async getAll() {
     try {
       const response = await this.client.get(
@@ -17062,6 +17070,10 @@ class GradeService extends BaseApiService {
 }
 const gradeService = new GradeService();
 const gradeHandlers = () => {
+  ipcMain.handle(
+    "grade:get",
+    (_, idGrade) => gradeService.get(idGrade)
+  );
   ipcMain.handle("grade:get-all", () => gradeService.getAll());
 };
 const themeHandlers = () => {
@@ -17073,13 +17085,25 @@ class UsuarioService extends BaseApiService {
   constructor() {
     super();
   }
+  async get(idUsuario) {
+    try {
+      const response = await this.client.get(
+        `v1/usuario/${idUsuario}`
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
   async getPage(params) {
     try {
       const response = await this.client.get("v1/usuario", {
         params,
         paramsSerializer: {
           indexes: null
-          // no brackets at all
         }
       });
       return {
@@ -17135,24 +17159,88 @@ class UsuarioService extends BaseApiService {
       return this.handleApiError(error);
     }
   }
+  async update(idUsuario, nome, cpf, email, idGrade) {
+    try {
+      const response = await this.client.put(
+        `v1/usuario/${idUsuario}`,
+        {
+          nome,
+          cpf,
+          email,
+          idGrade
+        }
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+  async changePassword(idUsuario, senha) {
+    try {
+      const response = await this.client.patch(
+        `v1/usuario/${idUsuario}/alterar-senha`,
+        {
+          senha
+        }
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+  async resetPassword(idUsuario) {
+    try {
+      const response = await this.client.patch(
+        `v1/usuario/${idUsuario}/resetar-senha`
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
 }
 const usuarioService = new UsuarioService();
 const usuarioHandlers = () => {
+  ipcMain.handle(
+    "usuario:get",
+    (_, idUsuario) => usuarioService.get(idUsuario)
+  );
   ipcMain.handle(
     "usuario:register",
     (_, nome, cpf, email, idGrade) => usuarioService.register(nome, cpf, email, idGrade)
   );
   ipcMain.handle(
+    "usuario:update",
+    (_, idUsuario, nome, cpf, email, idGrade) => usuarioService.update(idUsuario, nome, cpf, email, idGrade)
+  );
+  ipcMain.handle(
     "usuario:deactivate",
-    (_, idUser) => usuarioService.deactivate(idUser)
+    (_, idUsuario) => usuarioService.deactivate(idUsuario)
   );
   ipcMain.handle(
     "usuario:activate",
-    (_, idUser) => usuarioService.activate(idUser)
+    (_, idUsuario) => usuarioService.activate(idUsuario)
   );
   ipcMain.handle(
     "usuario:get-page",
     (_, params) => usuarioService.getPage(params)
+  );
+  ipcMain.handle(
+    "usuario:change-password",
+    (_, idUsuario, senha) => usuarioService.changePassword(idUsuario, senha)
+  );
+  ipcMain.handle(
+    "usuario:reset-password",
+    (_, idUsuario) => usuarioService.resetPassword(idUsuario)
   );
 };
 const ipcHandlers = () => {

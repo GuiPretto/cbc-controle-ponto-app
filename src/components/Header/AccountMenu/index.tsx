@@ -7,11 +7,9 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
 
 const AccountMenu = () => {
-  const navigate = useNavigate();
   const { logout: authLogout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -26,7 +24,6 @@ const AccountMenu = () => {
   const handleSair = async () => {
     try {
       await authLogout();
-      navigate("/login");
     } catch (err) {
       console.error("Login IPC error:", err);
     }

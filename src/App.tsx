@@ -16,18 +16,27 @@ import ListarFuncionarios from "./pages/ListarFuncionarios";
 import CadastrarFuncionario from "./pages/CadastrarFuncionario";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "./hooks/useSnackbar";
+import DetalharFuncionario from "./pages/DetalharFuncionario";
+import EditarFuncionario from "./pages/EditarFuncionario";
+import TrocarSenha from "./pages/TrocarSenha";
 
 const App = () => {
   const queryClient = new QueryClient();
 
   const ProtectedRoute = () => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, requiresPasswordChange } = useAuth();
     const location = useLocation();
+    console.log(isAuthenticated, requiresPasswordChange);
 
     // Se não estiver autenticado, redireciona para a página de login
     if (!isAuthenticated) {
       // Usa o 'state' para armazenar o caminho que o usuário tentou acessar
       return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    if (requiresPasswordChange && location.pathname !== "/trocar-senha") {
+      // Redireciona para a tela de troca de senha
+      return <Navigate to={"/trocar-senha"} replace />;
     }
 
     // Se estiver autenticado, renderiza as rotas filhas (que usam o Layout)
@@ -43,6 +52,7 @@ const App = () => {
               <QueryClientProvider client={queryClient}>
                 <Routes>
                   <Route path="/login" element={<Login />} />
+                  <Route path="/trocar-senha" element={<TrocarSenha />} />
                   <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Layout />}>
                       {/* <Route index element={<Home />} /> */}
@@ -58,6 +68,14 @@ const App = () => {
                       <Route
                         path="listar-funcionarios"
                         element={<ListarFuncionarios />}
+                      />
+                      <Route
+                        path="listar-funcionarios/:id"
+                        element={<DetalharFuncionario />}
+                      />
+                      <Route
+                        path="listar-funcionarios/:id/editar"
+                        element={<EditarFuncionario />}
                       />
                       <Route
                         path="cadastrar-funcionario"

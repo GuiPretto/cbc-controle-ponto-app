@@ -26,11 +26,14 @@ import { useSnackbar } from "src/hooks/useSnackbar";
 import {
   useActivateUsuario,
   useDeactivateUsuario,
-  useUsuarioPage,
+  useGetUsuarioPage,
 } from "src/hooks/useUsuario";
 import { ptBR } from "@mui/x-data-grid/locales";
+import { useNavigate } from "react-router-dom";
 
 const ListarFuncionarios = () => {
+  const navigate = useNavigate();
+
   const DEFAULT_PAGE_SIZE = 10;
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -64,7 +67,7 @@ const ListarFuncionarios = () => {
   );
 
   const { showSnackbar } = useSnackbar();
-  const { data: pageData, isFetching } = useUsuarioPage(params);
+  const { data: pageData, isFetching } = useGetUsuarioPage(params);
   const { mutate: activateMutate, isPending: isActivating } =
     useActivateUsuario();
   const { mutate: deactivateMutate, isPending: isDeactivating } =
@@ -232,6 +235,7 @@ const ListarFuncionarios = () => {
         </FormControl>
       </Stack>
       <Stack direction={"row"} sx={{ mt: "1.5rem", mb: "1.5rem" }}>
+        <Box sx={{ flexGrow: 1 }} />
         <Button
           variant="contained"
           onClick={handleFilterApply}
@@ -239,13 +243,13 @@ const ListarFuncionarios = () => {
         >
           {isFetching ? "Filtrando..." : "Filtrar"}
         </Button>
-        <Box sx={{ flexGrow: 1 }} />
       </Stack>
       <DataGrid
         localeText={ptBR.components.MuiDataGrid.defaultProps.localeText}
         columns={columns}
         rowSelection={false}
         rows={pageData?.content}
+        onRowClick={(d) => navigate(`/listar-funcionarios/${d.id}`)}
         sortingMode="server"
         onSortModelChange={handleSortModelChange}
         sortModel={sort}

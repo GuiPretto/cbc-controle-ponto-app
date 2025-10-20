@@ -8,6 +8,7 @@ export interface AuthResponse {
   idUser: number;
   username: string;
   role: string;
+  requerTrocarSenha: boolean;
 }
 
 // Resposta padronizada para o Renderer
@@ -58,13 +59,24 @@ declare global {
         onLogoutForced(callback: () => void): void;
       };
       grade: {
+        get(idGrade: number);
         getAll();
       };
       usuario: {
+        get(idUsuario: number);
         getPage(params: UsuarioPageParams);
         deactivate(idUsuario: number);
         activate(idUsuario: number);
+        update(
+          idUsuario: number,
+          nome: string,
+          cpf: string,
+          email: string,
+          idGrade: number
+        );
         register(nome: string, cpf: string, email: string, idGrade: number);
+        changePassword(idUsuario: number, senha: string);
+        resetPassword(idUsuario: number);
       };
     };
   }

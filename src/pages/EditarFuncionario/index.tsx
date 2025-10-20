@@ -12,31 +12,36 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useGrades } from "src/hooks/useGrade";
 import { useSnackbar } from "src/hooks/useSnackbar";
-import { useRegisterUsuario } from "src/hooks/useUsuario";
+import { useGetUsuario, useUpdateUsuario } from "src/hooks/useUsuario";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const CadastrarFuncionario = () => {
+const EditarFuncionario = () => {
   const navigate = useNavigate();
+  const { id: idUsuarioString } = useParams<{ id: string }>();
+  const idUsuario = idUsuarioString ? parseInt(idUsuarioString) : undefined;
+  const { data: usuario } = useGetUsuario(idUsuario);
   const { showSnackbar } = useSnackbar();
-  const [nome, setNome] = useState("");
+  const [nome, setNome] = useState(usuario?.nome);
   const [nomeError, setNomeError] = useState(false);
-  const [cpf, setCpf] = useState("");
+  const [cpf, setCpf] = useState(usuario?.cpf);
   const [cpfError, setCpfError] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(usuario?.email);
   const [emailError, setEmailError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
-  const [grade, setGrade] = useState<number | string>(" ");
+  const [grade, setGrade] = useState<number | string | undefined>(
+    usuario?.idGrade
+  );
   const [gradeError, setGradeError] = useState(false);
   const { data: grades } = useGrades();
-  const { mutate: cadastrarMutate, isPending: isCadastrando } =
-    useRegisterUsuario();
+  const { mutate: updateMutate, isPending: isAtualizando } = useUpdateUsuario();
 
-  const handleCadastrar = () => {
+  const handleAtualizar = () => {
     setNomeError(false);
     setCpfError(false);
     setEmailError(false);
@@ -68,8 +73,9 @@ const CadastrarFuncionario = () => {
       return;
     }
 
-    cadastrarMutate(
+    updateMutate(
       {
+        id: idUsuario,
         nome,
         cpf,
         email,
@@ -81,8 +87,8 @@ const CadastrarFuncionario = () => {
           setCpf("");
           setEmail("");
           setGrade(" ");
-          showSnackbar("Funcionário cadastrado com sucesso!", "success");
-          navigate("/listar-funcionarios");
+          showSnackbar("Funcionário atualizado com sucesso!", "success");
+          navigate(`/listar-funcionarios/${idUsuario}`);
         },
         onError: (e) => {
           showSnackbar(e.message, "error");
@@ -94,7 +100,7 @@ const CadastrarFuncionario = () => {
   return (
     <Box p={"2rem"}>
       <Typography variant="h4" sx={{ mb: "2rem" }}>
-        Cadastrar funcionário
+        Editar funcionário
       </Typography>
       <FormGroup>
         <Stack direction={"row"} gap={"1rem"}>
@@ -166,13 +172,21 @@ const CadastrarFuncionario = () => {
           </FormControl>
         </Stack>
         <Stack direction={"row"} sx={{ mt: "1.5rem" }}>
+          <Button
+            variant="contained"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(`/listar-funcionarios/${idUsuario}`)}
+            // disabled={isCadastrando}
+          >
+            Voltar
+          </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button
             variant="contained"
-            onClick={handleCadastrar}
-            disabled={isCadastrando}
+            onClick={handleAtualizar}
+            disabled={isAtualizando}
           >
-            {isCadastrando ? "Salvando..." : "Salvar"}
+            {isAtualizando ? "Atualizando..." : "Atualizar"}
           </Button>
         </Stack>
       </FormGroup>
@@ -180,4 +194,4 @@ const CadastrarFuncionario = () => {
   );
 };
 
-export default CadastrarFuncionario;
+export default EditarFuncionario;

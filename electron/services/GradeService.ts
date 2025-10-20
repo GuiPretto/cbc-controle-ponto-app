@@ -26,6 +26,21 @@ class GradeService extends BaseApiService {
     super();
   }
 
+  async get(idGrade: number): Promise<ServiceResponse<Grade>> {
+    try {
+      const response: AxiosResponse<Grade> = await this.client.get(
+        `v1/grade/${idGrade}`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Grade>;
+    }
+  }
+
   async getAll(): Promise<ServiceResponse<Grade[]>> {
     try {
       const response: AxiosResponse<Grade[]> = await this.client.get(

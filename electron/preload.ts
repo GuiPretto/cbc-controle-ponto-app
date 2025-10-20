@@ -34,16 +34,37 @@ contextBridge.exposeInMainWorld("api", {
     },
   },
   grade: {
+    get: (idGrade: number) => ipcRenderer.invoke("grade:get", idGrade),
     getAll: () => ipcRenderer.invoke("grade:get-all"),
   },
   usuario: {
+    get: (idUsuario: number) => ipcRenderer.invoke("usuario:get", idUsuario),
     getPage: (params: UsuarioPageParams) =>
       ipcRenderer.invoke("usuario:get-page", params),
-    deactivate: (idUser: number) =>
-      ipcRenderer.invoke("usuario:deactivate", idUser),
-    activate: (idUser: number) =>
-      ipcRenderer.invoke("usuario:activate", idUser),
+    deactivate: (idUsuario: number) =>
+      ipcRenderer.invoke("usuario:deactivate", idUsuario),
+    activate: (idUsuario: number) =>
+      ipcRenderer.invoke("usuario:activate", idUsuario),
     register: (nome: string, cpf: string, email: string, idGrade: number) =>
       ipcRenderer.invoke("usuario:register", nome, cpf, email, idGrade),
+    update: (
+      idUsuario: number,
+      nome: string,
+      cpf: string,
+      email: string,
+      idGrade: number
+    ) =>
+      ipcRenderer.invoke(
+        "usuario:update",
+        idUsuario,
+        nome,
+        cpf,
+        email,
+        idGrade
+      ),
+    changePassword: (idUsuario: number, senha: string) =>
+      ipcRenderer.invoke("usuario:change-password", idUsuario, senha),
+    resetPassword: (idUsuario: number) =>
+      ipcRenderer.invoke("usuario:reset-password", idUsuario),
   },
 });

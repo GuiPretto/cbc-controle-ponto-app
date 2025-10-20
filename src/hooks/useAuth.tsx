@@ -12,8 +12,11 @@ import {
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
+  requiresPasswordChange: boolean;
+  idUsuario: number | undefined;
   login: (cpf: string, password: string) => Promise<ServiceResponse<UserInfo>>;
   logout: () => void;
+  senhaTrocada: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,6 +34,8 @@ export const AuthProvider: React.FC<{
 }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
+  const [idUsuario, setIdUsuario] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const checkInitialAuth = async () => {
@@ -66,9 +71,10 @@ export const AuthProvider: React.FC<{
       return { success: false, error: "API indisponível." };
 
     const result = await window.api.auth.login(username, password);
-
     if (result.success) {
       setIsAuthenticated(true);
+      setRequiresPasswordChange(result.data.requerTrocarSenha);
+      setIdUsuario(result.data.id);
     }
     return result;
   }, []);
@@ -79,16 +85,33 @@ export const AuthProvider: React.FC<{
       await window.api.auth.logout();
     }
     setIsAuthenticated(false);
+    setRequiresPasswordChange(false);
+    setIdUsuario(undefined);
+  }, []);
+
+  const senhaTrocada = useCallback(() => {
+    setRequiresPasswordChange(false);
   }, []);
 
   const value = useMemo(
     () => ({
       isAuthenticated,
       isLoading,
+      requiresPasswordChange,
+      idUsuario,
       login,
       logout,
+      senhaTrocada,
     }),
-    [isAuthenticated, isLoading, login, logout]
+    [
+      isAuthenticated,
+      isLoading,
+      requiresPasswordChange,
+      idUsuario,
+      login,
+      logout,
+      senhaTrocada,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

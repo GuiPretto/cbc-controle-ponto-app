@@ -20,6 +20,15 @@ export interface RegisterUsuarioDto {
   idGrade: number;
 }
 
+export interface UpdateUsuarioDto extends RegisterUsuarioDto {
+  id?: number;
+}
+
+export interface ChangePasswordUsuarioDto {
+  id?: number;
+  senha: string;
+}
+
 export interface UsuarioPageParams {
   page: number;
   size: number;
@@ -36,16 +45,30 @@ class UsuarioService extends BaseApiService {
     super();
   }
 
+  async get(idUsuario: number): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.get(
+        `v1/usuario/${idUsuario}`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
   async getPage(
     params: UsuarioPageParams
   ): Promise<ServiceResponse<SpringPage<Usuario>>> {
     try {
-      // const cleanedParams = cleanObject(params);
       const response: AxiosResponse<SpringPage<Usuario>> =
         await this.client.get("v1/usuario", {
           params: params,
           paramsSerializer: {
-            indexes: null, // no brackets at all
+            indexes: null,
           },
         });
 
@@ -103,6 +126,69 @@ class UsuarioService extends BaseApiService {
           email,
           idGrade,
         }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
+  async update(
+    idUsuario: number,
+    nome: string,
+    cpf: string,
+    email: string,
+    idGrade: number
+  ): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.put(
+        `v1/usuario/${idUsuario}`,
+        {
+          nome,
+          cpf,
+          email,
+          idGrade,
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
+  async changePassword(
+    idUsuario: number,
+    senha: string
+  ): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.patch(
+        `v1/usuario/${idUsuario}/alterar-senha`,
+        {
+          senha,
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
+  async resetPassword(idUsuario: number): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.patch(
+        `v1/usuario/${idUsuario}/resetar-senha`
       );
 
       return {

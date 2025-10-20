@@ -42,11 +42,14 @@ const Login = () => {
       if (result.success) {
         // Sucesso no login, o token foi armazenado no Main Process.
         // O AuthProvider (App.tsx) detectará a mudança de estado e fará o redirecionamento
-        if (result.data?.role === "USER") {
-          navigate("/visualizar-batidas");
-        } else {
-          navigate("/listar-funcionarios");
-        }
+        // if (result.data?.requerTrocarSenha) {
+        //   navigate(`/trocar-senha`)
+        // } else
+        // if (result.data?.role === "USER") {
+        navigate("/visualizar-batidas");
+        // } else {
+        //   navigate("/listar-funcionarios");
+        // }
       } else {
         // Trata erros retornados do Spring Boot (ex: 401 Credenciais Inválidas)
         setError(

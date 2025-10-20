@@ -31,12 +31,24 @@ electron.contextBridge.exposeInMainWorld("api", {
     }
   },
   grade: {
+    get: (idGrade) => electron.ipcRenderer.invoke("grade:get", idGrade),
     getAll: () => electron.ipcRenderer.invoke("grade:get-all")
   },
   usuario: {
+    get: (idUsuario) => electron.ipcRenderer.invoke("usuario:get", idUsuario),
     getPage: (params) => electron.ipcRenderer.invoke("usuario:get-page", params),
-    deactivate: (idUser) => electron.ipcRenderer.invoke("usuario:deactivate", idUser),
-    activate: (idUser) => electron.ipcRenderer.invoke("usuario:activate", idUser),
-    register: (nome, cpf, email, idGrade) => electron.ipcRenderer.invoke("usuario:register", nome, cpf, email, idGrade)
+    deactivate: (idUsuario) => electron.ipcRenderer.invoke("usuario:deactivate", idUsuario),
+    activate: (idUsuario) => electron.ipcRenderer.invoke("usuario:activate", idUsuario),
+    register: (nome, cpf, email, idGrade) => electron.ipcRenderer.invoke("usuario:register", nome, cpf, email, idGrade),
+    update: (idUsuario, nome, cpf, email, idGrade) => electron.ipcRenderer.invoke(
+      "usuario:update",
+      idUsuario,
+      nome,
+      cpf,
+      email,
+      idGrade
+    ),
+    changePassword: (idUsuario, senha) => electron.ipcRenderer.invoke("usuario:change-password", idUsuario, senha),
+    resetPassword: (idUsuario) => electron.ipcRenderer.invoke("usuario:reset-password", idUsuario)
   }
 });
