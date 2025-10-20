@@ -1,4 +1,5 @@
 import { ipcRenderer, contextBridge } from "electron";
+import { UsuarioPageParams } from "./services/UsuarioService";
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld("ipcRenderer", {
@@ -36,7 +37,13 @@ contextBridge.exposeInMainWorld("api", {
     getAll: () => ipcRenderer.invoke("grade:get-all"),
   },
   usuario: {
-    register: (nome: string, cpf: string, idGrade: number) =>
-      ipcRenderer.invoke("usuario:register", nome, cpf, idGrade),
+    getPage: (params: UsuarioPageParams) =>
+      ipcRenderer.invoke("usuario:get-page", params),
+    deactivate: (idUser: number) =>
+      ipcRenderer.invoke("usuario:deactivate", idUser),
+    activate: (idUser: number) =>
+      ipcRenderer.invoke("usuario:activate", idUser),
+    register: (nome: string, cpf: string, email: string, idGrade: number) =>
+      ipcRenderer.invoke("usuario:register", nome, cpf, email, idGrade),
   },
 });

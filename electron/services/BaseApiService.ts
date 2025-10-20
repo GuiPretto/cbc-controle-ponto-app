@@ -9,7 +9,15 @@ export interface UserInfo {
   // Adicione mais campos do usuário aqui
 }
 
-// Resposta esperada do Spring Boot no login
+export interface SpringPage<T> {
+  content: T[]; // A lista real de dados (usuários)
+  totalPages: number;
+  totalElements: number;
+  number: number; // Número da página atual (baseado em 0)
+  size: number; // Tamanho da página
+  last: boolean;
+  first: boolean;
+}
 
 const API_URL = process.env.API_BASE_URL || "http://localhost:8080";
 const SERVICE_NAME = process.env.KEYTAR_SERVICE_NAME || "SERVICE_NAME";

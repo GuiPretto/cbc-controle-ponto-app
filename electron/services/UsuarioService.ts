@@ -1,5 +1,5 @@
 import { ServiceResponse } from "electron/electron-env";
-import BaseApiService from "./BaseApiService";
+import BaseApiService, { SpringPage } from "./BaseApiService";
 import { AxiosResponse } from "axios";
 
 export interface Usuario {
@@ -9,13 +9,26 @@ export interface Usuario {
   ativo: boolean;
   admin: boolean;
   dataCriacao: string;
+  email: string;
   idGrade: number;
 }
 
 export interface RegisterUsuarioDto {
   nome: string;
   cpf: string;
+  email: string;
   idGrade: number;
+}
+
+export interface UsuarioPageParams {
+  page: number;
+  size: number;
+  sort?: string[];
+  nome?: string;
+  cpf?: string;
+  ativo?: boolean;
+  email?: string;
+  idGrade?: number;
 }
 
 class UsuarioService extends BaseApiService {
@@ -23,9 +36,62 @@ class UsuarioService extends BaseApiService {
     super();
   }
 
+  async getPage(
+    params: UsuarioPageParams
+  ): Promise<ServiceResponse<SpringPage<Usuario>>> {
+    try {
+      // const cleanedParams = cleanObject(params);
+      const response: AxiosResponse<SpringPage<Usuario>> =
+        await this.client.get("v1/usuario", {
+          params: params,
+          paramsSerializer: {
+            indexes: null, // no brackets at all
+          },
+        });
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<SpringPage<Usuario>>;
+    }
+  }
+
+  async deactivate(idUsuario: number): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.patch(
+        `v1/usuario/${idUsuario}/inativar`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
+  async activate(idUsuario: number): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.patch(
+        `v1/usuario/${idUsuario}/ativar`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
   async register(
     nome: string,
     cpf: string,
+    email: string,
     idGrade: number
   ): Promise<ServiceResponse<Usuario>> {
     try {
@@ -34,6 +100,7 @@ class UsuarioService extends BaseApiService {
         {
           nome,
           cpf,
+          email,
           idGrade,
         }
       );

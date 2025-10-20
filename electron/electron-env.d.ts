@@ -1,5 +1,7 @@
 /// <reference types="vite-plugin-electron/electron-env" />
 
+import { UsuarioPageParams } from "./services/UsuarioService";
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -59,7 +61,10 @@ declare global {
         getAll();
       };
       usuario: {
-        register(nome: string, cpf: string, idGrade: number);
+        getPage(params: UsuarioPageParams);
+        deactivate(idUsuario: number);
+        activate(idUsuario: number);
+        register(nome: string, cpf: string, email: string, idGrade: number);
       };
     };
   }

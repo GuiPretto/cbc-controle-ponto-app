@@ -34,6 +34,9 @@ electron.contextBridge.exposeInMainWorld("api", {
     getAll: () => electron.ipcRenderer.invoke("grade:get-all")
   },
   usuario: {
-    register: (nome, cpf, idGrade) => electron.ipcRenderer.invoke("usuario:register", nome, cpf, idGrade)
+    getPage: (params) => electron.ipcRenderer.invoke("usuario:get-page", params),
+    deactivate: (idUser) => electron.ipcRenderer.invoke("usuario:deactivate", idUser),
+    activate: (idUser) => electron.ipcRenderer.invoke("usuario:activate", idUser),
+    register: (nome, cpf, email, idGrade) => electron.ipcRenderer.invoke("usuario:register", nome, cpf, email, idGrade)
   }
 });

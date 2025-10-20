@@ -4,6 +4,7 @@ import type { ThemeOptions } from "@mui/material/styles";
 import { inputsCustomizations } from "./customs/inputs";
 import { formInputsCustomizations } from "./customs/formInputs";
 import { dataDisplayCustomizations } from "./customs/dataDisplay";
+import { dataGridCustomizations } from "./customs/dataGrid";
 import { feedbackCustomizations } from "./customs/feedback";
 import { navigationCustomizations } from "./customs/navigation";
 import { surfacesCustomizations } from "./customs/surfaces";
@@ -36,6 +37,7 @@ export default function CustomThemeProvider(props: CustomThemeProviderProps) {
           ...formInputsCustomizations,
           ...inputsCustomizations,
           ...dataDisplayCustomizations,
+          ...dataGridCustomizations,
           ...feedbackCustomizations,
           ...navigationCustomizations,
           ...surfacesCustomizations,

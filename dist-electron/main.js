@@ -11685,7 +11685,14 @@ var _eval = EvalError;
 var range = RangeError;
 var ref = ReferenceError;
 var syntax = SyntaxError;
-var type = TypeError;
+var type;
+var hasRequiredType;
+function requireType() {
+  if (hasRequiredType) return type;
+  hasRequiredType = 1;
+  type = TypeError;
+  return type;
+}
 var uri = URIError;
 var abs$1 = Math.abs;
 var floor$1 = Math.floor;
@@ -11931,7 +11938,7 @@ function requireCallBindApplyHelpers() {
   if (hasRequiredCallBindApplyHelpers) return callBindApplyHelpers;
   hasRequiredCallBindApplyHelpers = 1;
   var bind3 = functionBind;
-  var $TypeError2 = type;
+  var $TypeError2 = requireType();
   var $call2 = requireFunctionCall();
   var $actualApply = requireActualApply();
   callBindApplyHelpers = function callBindBasic(args) {
@@ -12004,7 +12011,7 @@ var $EvalError = _eval;
 var $RangeError = range;
 var $ReferenceError = ref;
 var $SyntaxError = syntax;
-var $TypeError$1 = type;
+var $TypeError$1 = requireType();
 var $URIError = uri;
 var abs = abs$1;
 var floor = floor$1;
@@ -12335,7 +12342,7 @@ var GetIntrinsic2 = getIntrinsic;
 var $defineProperty = GetIntrinsic2("%Object.defineProperty%", true);
 var hasToStringTag = requireShams()();
 var hasOwn$1 = hasown;
-var $TypeError = type;
+var $TypeError = requireType();
 var toStringTag = hasToStringTag ? Symbol.toStringTag : null;
 var esSetTostringtag = function setToStringTag(object, value) {
   var overrideIfSet = arguments.length > 2 && !!arguments[2] && arguments[2].force;
@@ -17066,13 +17073,57 @@ class UsuarioService extends BaseApiService {
   constructor() {
     super();
   }
-  async register(nome, cpf, idGrade) {
+  async getPage(params) {
+    try {
+      const response = await this.client.get("v1/usuario", {
+        params,
+        paramsSerializer: {
+          indexes: null
+          // no brackets at all
+        }
+      });
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+  async deactivate(idUsuario) {
+    try {
+      const response = await this.client.patch(
+        `v1/usuario/${idUsuario}/inativar`
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+  async activate(idUsuario) {
+    try {
+      const response = await this.client.patch(
+        `v1/usuario/${idUsuario}/ativar`
+      );
+      return {
+        success: true,
+        data: response.data
+      };
+    } catch (error) {
+      return this.handleApiError(error);
+    }
+  }
+  async register(nome, cpf, email, idGrade) {
     try {
       const response = await this.client.post(
         "v1/usuario",
         {
           nome,
           cpf,
+          email,
           idGrade
         }
       );
@@ -17089,7 +17140,19 @@ const usuarioService = new UsuarioService();
 const usuarioHandlers = () => {
   ipcMain.handle(
     "usuario:register",
-    (_, nome, cpf, idGrade) => usuarioService.register(nome, cpf, idGrade)
+    (_, nome, cpf, email, idGrade) => usuarioService.register(nome, cpf, email, idGrade)
+  );
+  ipcMain.handle(
+    "usuario:deactivate",
+    (_, idUser) => usuarioService.deactivate(idUser)
+  );
+  ipcMain.handle(
+    "usuario:activate",
+    (_, idUser) => usuarioService.activate(idUser)
+  );
+  ipcMain.handle(
+    "usuario:get-page",
+    (_, params) => usuarioService.getPage(params)
   );
 };
 const ipcHandlers = () => {

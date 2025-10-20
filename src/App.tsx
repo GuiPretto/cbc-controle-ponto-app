@@ -15,6 +15,7 @@ import CustomThemeProvider from "./themes/CustomThemeProvider";
 import ListarFuncionarios from "./pages/ListarFuncionarios";
 import CadastrarFuncionario from "./pages/CadastrarFuncionario";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SnackbarProvider } from "./hooks/useSnackbar";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -38,53 +39,55 @@ const App = () => {
       <AuthProvider>
         <CustomThemeProvider>
           <HashRouter>
-            <QueryClientProvider client={queryClient}>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/" element={<Layout />}>
-                    {/* <Route index element={<Home />} /> */}
-                    <Route path="visualizar-batidas" element={<About />} />
-                    <Route
-                      path="registrar-justificativa"
-                      element={
-                        <h2 className="p-8 text-2xl text-gray-800 dark:text-gray-200">
-                          registrar-justificativa
-                        </h2>
-                      }
-                    />
-                    <Route
-                      path="listar-funcionarios"
-                      element={<ListarFuncionarios />}
-                    />
-                    <Route
-                      path="cadastrar-funcionario"
-                      element={<CadastrarFuncionario />}
-                    />
+            <SnackbarProvider>
+              <QueryClientProvider client={queryClient}>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/" element={<Layout />}>
+                      {/* <Route index element={<Home />} /> */}
+                      <Route path="visualizar-batidas" element={<About />} />
+                      <Route
+                        path="registrar-justificativa"
+                        element={
+                          <h2 className="p-8 text-2xl text-gray-800 dark:text-gray-200">
+                            registrar-justificativa
+                          </h2>
+                        }
+                      />
+                      <Route
+                        path="listar-funcionarios"
+                        element={<ListarFuncionarios />}
+                      />
+                      <Route
+                        path="cadastrar-funcionario"
+                        element={<CadastrarFuncionario />}
+                      />
+                    </Route>
                   </Route>
-                </Route>
 
-                <Route
-                  path="*"
-                  element={
-                    <div className="p-8 text-center bg-white dark:bg-gray-800 m-8 rounded-lg shadow-lg">
-                      <h2 className="text-5xl font-bold text-red-600 mb-4">
-                        404
-                      </h2>
-                      <p className="text-xl text-gray-700 dark:text-gray-300">
-                        Página Não Encontrada
-                      </p>
-                      <Link
-                        to="/login"
-                        className="text-indigo-500 hover:text-indigo-700 mt-4 block"
-                      >
-                        Voltar para o Login
-                      </Link>
-                    </div>
-                  }
-                />
-              </Routes>
-            </QueryClientProvider>
+                  <Route
+                    path="*"
+                    element={
+                      <div className="p-8 text-center bg-white dark:bg-gray-800 m-8 rounded-lg shadow-lg">
+                        <h2 className="text-5xl font-bold text-red-600 mb-4">
+                          404
+                        </h2>
+                        <p className="text-xl text-gray-700 dark:text-gray-300">
+                          Página Não Encontrada
+                        </p>
+                        <Link
+                          to="/login"
+                          className="text-indigo-500 hover:text-indigo-700 mt-4 block"
+                        >
+                          Voltar para o Login
+                        </Link>
+                      </div>
+                    }
+                  />
+                </Routes>
+              </QueryClientProvider>
+            </SnackbarProvider>
           </HashRouter>
         </CustomThemeProvider>
       </AuthProvider>
