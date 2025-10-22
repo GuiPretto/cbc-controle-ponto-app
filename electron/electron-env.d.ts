@@ -78,6 +78,16 @@ declare global {
         changePassword(idUsuario: number, senha: string);
         resetPassword(idUsuario: number);
       };
+      fingerprint: {
+        start();
+        stop();
+        onData(cb: (data: unknown) => void);
+        onError(cb: (err: unknown) => void);
+        onStopped(cb: (info: unknown) => void);
+      };
+      batida: {
+        register(template: string);
+      };
     };
   }
 }

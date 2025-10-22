@@ -1,13 +1,18 @@
 import authHandlers from "./authHandlers";
+import batidaHandlers from "./batidaHandlers";
+import fingerprintHandlers from "./fingerprintHandlers";
 import gradeHandlers from "./gradeHandlers";
 import themeHandlers from "./themeHandlers";
 import usuarioHandlers from "./usuarioHandlers";
 
-const ipcHandlers = () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ipcHandlers = (mainWindow: any, setFingerprintProcess: any) => {
   authHandlers();
   gradeHandlers();
   usuarioHandlers();
   themeHandlers();
+  batidaHandlers();
+  fingerprintHandlers(mainWindow, setFingerprintProcess);
 };
 
 export default ipcHandlers;

@@ -67,4 +67,23 @@ contextBridge.exposeInMainWorld("api", {
     resetPassword: (idUsuario: number) =>
       ipcRenderer.invoke("usuario:reset-password", idUsuario),
   },
+  fingerprint: {
+    start: () => ipcRenderer.invoke("fingerprint:start"),
+    stop: () => ipcRenderer.invoke("fingerprint:stop"),
+    onData: (cb: (data: unknown) => void) => {
+      console.log("aqui1");
+      ipcRenderer.on("fingerprint:data", (_e, data) => cb(data));
+    },
+    onError: (cb: (err: unknown) => void) => {
+      console.log("aqui2");
+      ipcRenderer.on("fingerprint:error", (_e, err) => cb(err));
+    },
+    onStopped: (cb: (info: unknown) => void) => {
+      ipcRenderer.on("fingerprint:stopped", (_e, info) => cb(info));
+    },
+  },
+  batida: {
+    register: (template: string) =>
+      ipcRenderer.invoke("batida:register", template),
+  },
 });

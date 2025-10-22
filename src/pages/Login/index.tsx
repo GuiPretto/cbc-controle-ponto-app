@@ -1,4 +1,3 @@
-// import { Box } from "@mui/material";
 import {
   Box,
   Button,
@@ -20,16 +19,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { isLoading, login: authLogin } = useAuth();
 
-  // Função para lidar com a submissão do formulário e chamada IPC
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError("");
-
-    // if (!window.api || !window.api.auth) {
-    //   setError("Erro: A API do Electron não está disponível.");
-    //   setLoading(false);
-    //   return;
-    // }
 
     if (!cpf || !password) {
       setError("Por favor, preencha todos os campos.");
@@ -37,21 +29,10 @@ const Login = () => {
     }
 
     try {
-      // Chamada segura via IPC (auth:login)
       const result = await authLogin(cpf, password);
       if (result.success) {
-        // Sucesso no login, o token foi armazenado no Main Process.
-        // O AuthProvider (App.tsx) detectará a mudança de estado e fará o redirecionamento
-        // if (result.data?.requerTrocarSenha) {
-        //   navigate(`/trocar-senha`)
-        // } else
-        // if (result.data?.role === "USER") {
         navigate("/visualizar-batidas");
-        // } else {
-        //   navigate("/listar-funcionarios");
-        // }
       } else {
-        // Trata erros retornados do Spring Boot (ex: 401 Credenciais Inválidas)
         setError(
           result.error || "Erro de autenticação. Verifique suas credenciais."
         );
@@ -89,8 +70,6 @@ const Login = () => {
           <FormControl>
             <FormLabel htmlFor="email">CPF</FormLabel>
             <TextField
-              // error={emailError}
-              // helperText={emailErrorMessage}
               id="cpf"
               type="number"
               name="cpf"
@@ -112,14 +91,11 @@ const Login = () => {
                   "-moz-appearance": "textfield",
                 },
               }}
-              // color={emailError ? 'error' : 'primary'}
             />
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="password">Senha</FormLabel>
             <TextField
-              // error={passwordError}
-              // helperText={passwordErrorMessage}
               name="password"
               placeholder="••••••"
               type="password"
@@ -131,13 +107,8 @@ const Login = () => {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              // color={passwordError ? 'error' : 'primary'}
             />
           </FormControl>
-          {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
           {error && (
             <Typography color="error" variant="body2">
               {error}
@@ -148,10 +119,10 @@ const Login = () => {
             fullWidth
             variant="contained"
             disabled={isLoading}
-            //   onClick={validateInputs}
           >
             {isLoading ? "Entrando..." : "Entrar"}
           </Button>
+          <Button onClick={() => navigate("/captura")}>Captura</Button>
         </Box>
       </LoginCard>
     </SignInContainer>

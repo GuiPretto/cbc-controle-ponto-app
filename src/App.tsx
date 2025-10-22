@@ -19,6 +19,7 @@ import { SnackbarProvider } from "./hooks/useSnackbar";
 import DetalharFuncionario from "./pages/DetalharFuncionario";
 import EditarFuncionario from "./pages/EditarFuncionario";
 import TrocarSenha from "./pages/TrocarSenha";
+import Captura from "./pages/Captura";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => {
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/trocar-senha" element={<TrocarSenha />} />
+                  <Route path="/captura" element={<Captura />} />
                   <Route element={<ProtectedRoute />}>
                     <Route path="/" element={<Layout />}>
                       {/* <Route index element={<Home />} /> */}
