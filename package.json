@@ -3,6 +3,19 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "productName": "CBC - Sistema de Controle de Ponto",
+  "build": {
+    "appId": "com.cbc.controleponto",
+    "directories": {
+      "buildResources": "public"
+    },
+    "win": {
+      "icon": "icons/icon.ico"
+    },
+    "mac": {
+      "icon": "icons/icon.icns"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",

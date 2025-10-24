@@ -1,8 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
-import { Batida, RegisterBatidaDto } from "electron/services/BatidaService";
+import { RegisterBatidaDto } from "electron/services/BatidaService";
+import { Usuario } from "electron/services/UsuarioService";
 
 export const useRegisterBatida = () => {
-  return useMutation<Batida, Error, RegisterBatidaDto>({
+  return useMutation<Usuario, Error, RegisterBatidaDto>({
     mutationFn: async ({ template }: RegisterBatidaDto) => {
       const result = await window.api.batida.register(template);
       if (!result.success) {
