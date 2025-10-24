@@ -1,22 +1,37 @@
 /* Definição da Fonte Variável (Peso e Opacidade) */
-@font-face {
+/* @font-face {
   font-family: "Inter";
   font-style: normal;
-  font-weight: 100 900; /* Define um intervalo de pesos suportados */
+  font-weight: 100 900;
   font-display: swap;
   src: url("./assets/fonts/Inter-VariableFont_opsz,wght.woff2")
     format("truetype");
-  /* OU o formato woff2 se você o tiver */
-}
+} */
 
 /* Definição da Fonte Variável Itálica */
-@font-face {
+/* @font-face {
   font-family: "Inter";
   font-style: italic;
   font-weight: 100 900;
   font-display: swap;
   src: url("./assets/fonts/Inter-Italic-VariableFont_opsz,wght.woff2")
     format("truetype");
+} */
+
+@font-face {
+  font-family: "Nexa";
+  font-style: bold;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/Nexa-Heavy.woff2") format("truetype");
+}
+
+@font-face {
+  font-family: "DIN";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./assets/fonts/DIN-Regular.woff2") format("truetype");
 }
 
 /* Box sizing rules */
@@ -26,7 +41,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Inter", "Helvetica", "Arial", sans-serif;
+  font-family: "DIN", "Helvetica", "Arial", sans-serif;
 }
 
 /* Prevent font size inflation */

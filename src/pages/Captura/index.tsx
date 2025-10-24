@@ -4,13 +4,67 @@ import { LoginCard, SignInContainer } from "../Login/styles";
 import ColorModeIconDropdown from "src/components/ColorModeIconDropdown";
 import { Button, Stack, Typography } from "@mui/material";
 import { ArrowBack, Fingerprint } from "@mui/icons-material";
+import { useRegisterBatida } from "src/hooks/useBatida";
+import { RegisterBatidaDto } from "electron/services/BatidaService";
+import { useSnackbar } from "src/hooks/useSnackbar";
+import DigitalClock from "src/components/DigitalClock";
+import { red } from "@mui/material/colors";
+
+import { Usuario } from "electron/services/UsuarioService";
 
 const Captura = () => {
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
   const firstUpdate = useRef(true);
-  const [last, setLast] = useState<unknown>(null);
   const [status, setStatus] = useState("Parado");
-  const [loading, setLoading] = useState(false);
+  const [loadingDispositivo, setLoadingDispositivo] = useState(false);
+  const { mutate: registrarMutate } = useRegisterBatida();
+  const isProcessandoRef = useRef(false);
+  const [usuarioInfo, setUsuarioInfo] = useState<Usuario | undefined>(
+    undefined
+  );
+  const [iconStatus, setIconStatus] = useState<"success" | "error" | undefined>(
+    undefined
+  );
+
+  const handleRegistrar = (template: string) => {
+    if (isProcessandoRef.current) return;
+    isProcessandoRef.current = true;
+    registrarMutate(
+      { template },
+      {
+        onSuccess: (e) => {
+          showSnackbar("Batida registrada!", "success");
+          setUsuarioInfo(e);
+          setIconStatus("success");
+          setTimeout(() => {
+            isProcessandoRef.current = false;
+            setUsuarioInfo(undefined);
+            setIconStatus(undefined);
+          }, 4000);
+        },
+        onError: (err) => {
+          showSnackbar(
+            err.message === "Error" ? "Sistema fora do ar" : err.message,
+            "error"
+          );
+          setIconStatus("error");
+          setTimeout(() => {
+            isProcessandoRef.current = false;
+            setUsuarioInfo(undefined);
+            setIconStatus(undefined);
+          }, 4000);
+        },
+      }
+    );
+  };
+
+  const onData = (data: unknown) => {
+    if (typeof data === "object" && !isProcessandoRef.current) {
+      const dataTipada = data as RegisterBatidaDto;
+      handleRegistrar(dataTipada.template);
+    }
+  };
 
   useEffect(() => {
     if (firstUpdate.current) {
@@ -18,28 +72,18 @@ const Captura = () => {
       return;
     }
     async function start() {
-      setLoading(true);
+      setLoadingDispositivo(true);
       const res = await window.api.fingerprint.start();
-      console.log("teste");
       if (res?.success) setStatus("Aguardando digital...");
       else setStatus("Erro ao iniciar");
-      setLoading(false);
+      setLoadingDispositivo(false);
     }
     start();
-
-    const onData = (data: unknown) => {
-      console.log("Recebi digital:", data);
-      setLast(data);
-    };
-    const onError = (err: unknown) => {
-      console.error("Erro fingerprint:", err);
-    };
     window.api.fingerprint.onData(onData);
-    window.api.fingerprint.onError(onError);
-
     return () => {
       window.api.fingerprint.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -48,15 +92,45 @@ const Captura = () => {
         sx={{ position: "fixed", top: "1rem", right: "1rem" }}
       />
       <LoginCard variant="outlined">
-        <Typography
-          component="h1"
-          variant="h3"
-          sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
-        >
-          {loading ? "Carregando dispositivo biométrico..." : status}
-        </Typography>
+        <DigitalClock />
+        {usuarioInfo ? (
+          <>
+            <Typography
+              component="h1"
+              textAlign={"center"}
+              sx={{ width: "100%", fontSize: "1.5rem" }}
+            >
+              {usuarioInfo.nome}
+            </Typography>
+            <Typography
+              component="h1"
+              textAlign={"center"}
+              sx={{ width: "100%", fontSize: "1.25rem" }}
+            >
+              {usuarioInfo.cpf}
+            </Typography>
+          </>
+        ) : (
+          <Typography
+            component="h1"
+            textAlign={"center"}
+            sx={{ width: "100%", fontSize: "1.5rem" }}
+          >
+            {loadingDispositivo
+              ? "Carregando dispositivo biométrico..."
+              : status}
+          </Typography>
+        )}
         <Stack direction={"row"} justifyContent={"center"}>
-          <Fingerprint sx={{ fontSize: "6rem", mt: "1.5rem", mb: "1.5rem" }} />
+          <Fingerprint
+            sx={{
+              fontSize: "4rem",
+              mt: "1.5rem",
+              mb: "1.5rem",
+              color: iconStatus === "error" ? red[500] : undefined,
+            }}
+            color={iconStatus === "success" ? "success" : undefined}
+          />
         </Stack>
         <Stack direction={"row"}>
           <Button

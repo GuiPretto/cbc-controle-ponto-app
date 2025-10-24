@@ -44,22 +44,12 @@ async function startFingerprint(exePath: string) {
 
   const proc = spawn(exePath, [], {
     windowsHide: true,
-    stdio: ["pipe", "pipe", "pipe"], // permite enviar STOP
+    stdio: ["pipe", "pipe", "pipe"],
   });
 
-  proc.stdout?.on("data", (data) => {
-    const msg = data.toString().trim();
-    try {
-      const parsed = JSON.parse(msg);
-      console.log("[FINGERPRINT][DATA]", parsed);
-    } catch {
-      console.log("[FINGERPRINT][LOG]", msg);
-    }
-  });
-
-  proc.stderr?.on("data", (err) => {
-    console.error("[FINGERPRINT][ERRO]", err.toString());
-  });
+  // proc.stderr?.on("data", (err) => {
+  //   console.error("[FINGERPRINT][ERRO]", err.toString());
+  // });
 
   proc.on("exit", (code) => {
     console.log("[FINGERPRINT] Processo finalizado com código:", code);
@@ -130,17 +120,39 @@ const fingerprintHandlers = (
       }
     };
 
-    fingerprintProcess.stdout?.on("data", (data) => {
-      try {
-        // const msg = JSON.parse(data.toString());
-        safeSend("fingerprint:data", data.toString());
-      } catch {
-        safeSend("fingerprint:log", data.toString());
+    // --- buffer para juntar as mensagens JSON grandes ---
+    let buffer = "";
+
+    fingerprintProcess.stdout?.on("data", (chunk) => {
+      const text = chunk.toString();
+
+      buffer += text;
+
+      // Tenta detectar JSONs completos (terminam com `}`)
+      let boundary: number;
+      while (
+        (boundary = buffer.indexOf("}\n")) !== -1 ||
+        (boundary = buffer.indexOf("}")) !== -1
+      ) {
+        const jsonStr = buffer.slice(0, boundary + 1);
+        buffer = buffer.slice(boundary + 1);
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const res = {
+            template: parsed.templateBase64,
+          };
+          safeSend("fingerprint:data", res);
+          console.log("[FINGERPRINT][DATA]", res);
+        } catch {
+          // ainda não completou o JSON
+          // mantemos o buffer e esperamos o próximo pedaço
+        }
       }
     });
 
-    fingerprintProcess.stderr?.on("data", () => {
-      // safeSend("fingerprint:error", err.toString());
+    fingerprintProcess.stderr?.on("data", (err) => {
+      safeSend("fingerprint:error", err.toString());
     });
 
     fingerprintProcess.on("exit", (code) => {

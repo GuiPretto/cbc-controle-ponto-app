@@ -3,8 +3,9 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetUsuario, useResetPasswordUsuario } from "src/hooks/useUsuario";
 import { useGetGrade } from "src/hooks/useGrade";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useSnackbar } from "src/hooks/useSnackbar";
+import ModalCadastrarBiometria from "src/components/ModalCadastrarBiometria";
 
 const DetalhesFuncionario = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const DetalhesFuncionario = () => {
   const { data: grade } = useGetGrade(usuario?.idGrade ?? undefined);
   const { mutate: resetPasswordMutate, isPending: isReseting } =
     useResetPasswordUsuario();
+  const [cadastrarBiometriaOpen, setCadastrarBiometriaOpen] = useState(false);
 
   const handleResetPassword = useCallback(() => {
     console.log("teste");
@@ -90,6 +92,12 @@ const DetalhesFuncionario = () => {
         <Box sx={{ flexGrow: 1 }} />
         <Button
           variant="contained"
+          onClick={() => setCadastrarBiometriaOpen(true)}
+        >
+          Cadastrar biometria
+        </Button>
+        <Button
+          variant="contained"
           onClick={handleResetPassword}
           disabled={isReseting}
         >
@@ -103,6 +111,13 @@ const DetalhesFuncionario = () => {
           Editar
         </Button>
       </Stack>
+      {cadastrarBiometriaOpen && usuario?.id && (
+        <ModalCadastrarBiometria
+          idUsuario={usuario.id}
+          open={cadastrarBiometriaOpen}
+          setOpen={setCadastrarBiometriaOpen}
+        />
+      )}
     </Box>
   );
 };

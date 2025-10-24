@@ -41,7 +41,7 @@ const Header = () => {
               width={36}
               height={36}
             />
-            <Typography fontSize={"1rem"} fontWeight={600}>
+            <Typography fontSize={"1rem"} fontWeight={600} fontFamily={"Nexa"}>
               CBC - Sistema de Controle de Ponto
             </Typography>
           </Stack>

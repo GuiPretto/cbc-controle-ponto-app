@@ -88,6 +88,9 @@ declare global {
       batida: {
         register(template: string);
       };
+      biometria: {
+        register(idUsuario: number, template: string);
+      };
     };
   }
 }

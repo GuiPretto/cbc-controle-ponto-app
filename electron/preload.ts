@@ -86,4 +86,8 @@ contextBridge.exposeInMainWorld("api", {
     register: (template: string) =>
       ipcRenderer.invoke("batida:register", template),
   },
+  biometria: {
+    register: (idUsuario: number, template: string) =>
+      ipcRenderer.invoke("biometria:register", idUsuario, template),
+  },
 });

@@ -3,11 +3,13 @@ import {
   Button,
   FormControl,
   FormLabel,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { LoginCard, SignInContainer } from "./styles";
 import ColorModeIconDropdown from "../../components/ColorModeIconDropdown";
+import MinhaLogo from "../../assets/logo-cbc.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
@@ -49,13 +51,22 @@ const Login = () => {
         sx={{ position: "fixed", top: "1rem", right: "1rem" }}
       />
       <LoginCard variant="outlined">
-        <Typography
-          component="h1"
-          variant="h4"
-          sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+        <Stack
+          direction={"row"}
+          alignItems={"center"}
+          justifyContent={"center"}
+          gap={"1rem"}
         >
-          Login
-        </Typography>
+          <img src={MinhaLogo} width={36} height={36} />
+          <Typography
+            fontFamily={"Nexa"}
+            component="h1"
+            variant="h4"
+            sx={{ fontSize: "1.5rem" }}
+          >
+            Controle de Ponto
+          </Typography>
+        </Stack>
         <Box
           component="form"
           onSubmit={handleSubmit}
