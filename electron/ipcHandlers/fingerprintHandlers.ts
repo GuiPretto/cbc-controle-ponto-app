@@ -1,13 +1,11 @@
-import { ipcMain, app, BrowserWindow } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { spawn } from "child_process";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import fs from "fs";
 
 let fingerprintProcess: import("child_process").ChildProcess | null = null;
 
+/** Verifica se o processo ainda está vivo */
 function isProcessAlive(pid: number) {
   try {
     process.kill(pid, 0);
@@ -17,6 +15,7 @@ function isProcessAlive(pid: number) {
   }
 }
 
+/** Força o encerramento de um processo via taskkill */
 function forceKillProcess(proc: import("child_process").ChildProcess | null) {
   if (proc && proc.pid) {
     try {
@@ -24,9 +23,7 @@ function forceKillProcess(proc: import("child_process").ChildProcess | null) {
       try {
         process.kill(pid, 0);
       } catch {
-        console.log(
-          `[FINGERPRINT] Processo ${pid} já finalizado, ignorando taskkill.`
-        );
+        console.log(`[FINGERPRINT] Processo ${pid} já finalizado.`);
         return;
       }
       console.warn(`[FINGERPRINT] Forçando encerramento do processo ${pid}...`);
@@ -34,30 +31,52 @@ function forceKillProcess(proc: import("child_process").ChildProcess | null) {
         windowsHide: true,
       });
     } catch (e) {
-      console.error("[FINGERPRINT] Erro ao encerrar processo biométrico:", e);
+      console.error("[FINGERPRINT] Erro ao encerrar processo:", e);
     }
   }
 }
 
+/** Inicia o processo biométrico */
 async function startFingerprint(exePath: string) {
-  console.log("[FINGERPRINT] Iniciando processo:", exePath);
+  console.log("[FINGERPRINT] Tentando iniciar:", exePath);
 
-  const proc = spawn(exePath, [], {
-    windowsHide: true,
-    stdio: ["pipe", "pipe", "pipe"],
-  });
+  if (!fs.existsSync(exePath)) {
+    const msg = `Arquivo de captura de digital não encontrado em:\n${exePath}`;
+    console.error("[FINGERPRINT] ERRO:", msg);
+    dialog.showErrorBox("Erro ao iniciar captura biométrica", msg);
+    throw new Error(msg);
+  }
 
-  // proc.stderr?.on("data", (err) => {
-  //   console.error("[FINGERPRINT][ERRO]", err.toString());
-  // });
+  try {
+    const proc = spawn(exePath, [], {
+      windowsHide: true,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
 
-  proc.on("exit", (code) => {
-    console.log("[FINGERPRINT] Processo finalizado com código:", code);
-  });
+    proc.on("error", (err) => {
+      console.error("[FINGERPRINT] Falha ao iniciar processo:", err);
+      dialog.showErrorBox(
+        "Falha ao iniciar biometria",
+        `Não foi possível executar o programa:\n${exePath}\n\nErro: ${err.message}`
+      );
+    });
 
-  return proc;
+    proc.on("exit", (code) => {
+      console.log("[FINGERPRINT] Processo finalizado com código:", code);
+    });
+
+    return proc;
+  } catch (err: any) {
+    console.error("[FINGERPRINT] Erro inesperado:", err);
+    dialog.showErrorBox(
+      "Erro inesperado",
+      `Falha ao iniciar o executável biométrico:\n${exePath}\n\n${err.message}`
+    );
+    throw err;
+  }
 }
 
+/** Finaliza o processo com shutdown limpo ou forçado */
 async function shutdownFingerprint(
   proc: import("child_process").ChildProcess | null
 ) {
@@ -94,6 +113,7 @@ async function shutdownFingerprint(
   forceKillProcess(proc);
 }
 
+/** Handlers IPC */
 const fingerprintHandlers = (
   mainWindow: BrowserWindow | null,
   setFingerprintProcess: (
@@ -106,10 +126,12 @@ const fingerprintHandlers = (
       throw new Error("Processo já iniciado");
     }
 
-    const exePath =
-      process.env.NODE_ENV === "development"
-        ? path.join(__dirname, "../electron/bin/CaptureFingerprint.exe")
-        : path.join(process.resourcesPath, "bin", "CaptureFingerprint.exe");
+    const isDev = !app.isPackaged;
+    const exePath = isDev
+      ? path.join(process.cwd(), "electron/bin/CaptureFingerprint.exe")
+      : path.join(process.resourcesPath, "bin", "CaptureFingerprint.exe");
+
+    console.log("[FINGERPRINT] Caminho do executável:", exePath);
 
     fingerprintProcess = await startFingerprint(exePath);
     setFingerprintProcess(fingerprintProcess);
@@ -120,15 +142,13 @@ const fingerprintHandlers = (
       }
     };
 
-    // --- buffer para juntar as mensagens JSON grandes ---
+    // --- buffer para juntar mensagens JSON longas vindas do .exe ---
     let buffer = "";
 
     fingerprintProcess.stdout?.on("data", (chunk) => {
       const text = chunk.toString();
-
       buffer += text;
 
-      // Tenta detectar JSONs completos (terminam com `}`)
       let boundary: number;
       while (
         (boundary = buffer.indexOf("}\n")) !== -1 ||
@@ -139,20 +159,18 @@ const fingerprintHandlers = (
 
         try {
           const parsed = JSON.parse(jsonStr);
-          const res = {
-            template: parsed.templateBase64,
-          };
-          safeSend("fingerprint:data", res);
-          console.log("[FINGERPRINT][DATA]", res);
+          safeSend("fingerprint:data", { template: parsed.templateBase64 });
+          console.log("[FINGERPRINT][DATA]", parsed);
         } catch {
-          // ainda não completou o JSON
-          // mantemos o buffer e esperamos o próximo pedaço
+          // JSON incompleto, espera o próximo chunk
         }
       }
     });
 
     fingerprintProcess.stderr?.on("data", (err) => {
-      safeSend("fingerprint:error", err.toString());
+      const msg = err.toString();
+      console.error("[FINGERPRINT][stderr]", msg);
+      safeSend("fingerprint:error", msg);
     });
 
     fingerprintProcess.on("exit", (code) => {
@@ -167,6 +185,7 @@ const fingerprintHandlers = (
 
   ipcMain.handle("fingerprint:stop", async () => {
     if (fingerprintProcess) {
+      console.log("[FINGERPRINT] Encerrando processo manualmente...");
       await shutdownFingerprint(fingerprintProcess);
       fingerprintProcess = null;
       setFingerprintProcess(null);

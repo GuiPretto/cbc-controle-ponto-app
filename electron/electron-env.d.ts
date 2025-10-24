@@ -91,6 +91,9 @@ declare global {
       biometria: {
         register(idUsuario: number, template: string);
       };
+      frequencia: {
+        getByUserAndPeriod(idUsuario: number, mesAno: string);
+      };
     };
   }
 }

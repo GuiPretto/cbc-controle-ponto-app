@@ -1,4 +1,4 @@
-import { app, BrowserWindow, nativeTheme } from "electron";
+import { app, BrowserWindow, nativeTheme, Menu } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import ipcHandlers from "./ipcHandlers";
@@ -33,6 +33,7 @@ function createWindow() {
       preload: path.join(__dirname, "preload.mjs"),
       contextIsolation: true,
       nodeIntegration: false,
+      devTools: !app.isPackaged,
     },
   });
 
@@ -43,8 +44,14 @@ function createWindow() {
     );
   });
 
-  if (VITE_DEV_SERVER_URL) win.loadURL(VITE_DEV_SERVER_URL);
-  else win.loadFile(path.join(RENDERER_DIST, "index.html"));
+  if (VITE_DEV_SERVER_URL) {
+    // Ambiente de desenvolvimento (Vite)
+    win.loadURL(VITE_DEV_SERVER_URL);
+  } else {
+    // Ambiente de produção (build final)
+    const indexPath = path.join(process.resourcesPath, "app", "index.html");
+    win.loadFile(indexPath);
+  }
 }
 
 app.on("window-all-closed", () => {
@@ -59,6 +66,9 @@ app.on("activate", () => {
 });
 
 app.whenReady().then(() => {
+  if (app.isPackaged) {
+    Menu.setApplicationMenu(null);
+  }
   createWindow();
   ipcHandlers(win, setFingerprintProcess);
 });

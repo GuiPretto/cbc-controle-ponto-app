@@ -2,6 +2,7 @@ import authHandlers from "./authHandlers";
 import batidaHandlers from "./batidaHandlers";
 import biometriaHandlers from "./biometriaHandlers";
 import fingerprintHandlers from "./fingerprintHandlers";
+import frequenciaHandlers from "./frequenciaHandlers";
 import gradeHandlers from "./gradeHandlers";
 import themeHandlers from "./themeHandlers";
 import usuarioHandlers from "./usuarioHandlers";
@@ -14,6 +15,7 @@ const ipcHandlers = (mainWindow: any, setFingerprintProcess: any) => {
   themeHandlers();
   batidaHandlers();
   biometriaHandlers();
+  frequenciaHandlers();
   fingerprintHandlers(mainWindow, setFingerprintProcess);
 };
 

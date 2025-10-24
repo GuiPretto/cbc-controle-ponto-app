@@ -80,8 +80,8 @@ const DrawerMenu = ({
               Funcionário
             </ListSubheader>
             <NavItem
-              to="/visualizar-batidas"
-              text="Visualizar batidas"
+              to="/visualizar-frequencia"
+              text="Visualizar frequência"
               icon={CalendarMonth}
             />
             <NavItem

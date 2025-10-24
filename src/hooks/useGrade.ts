@@ -39,23 +39,3 @@ export const useGrades = () => {
     },
   });
 };
-
-// Hook para criar dados
-// export const useCreateGrade = () => {
-//     const queryClient = useQueryClient();
-
-//     // Função mutationFn chama seu serviço IPC para criar
-//     return useMutation({
-//         mutationFn: async (dto) => {
-//             const result = await window.api.grade.create(dto);
-//             if (!result.success) {
-//                 throw new Error(result.error);
-//             }
-//             return result.data;
-//         },
-//         // Invalida o cache após o sucesso para forçar o refetch (automaticamente)
-//         onSuccess: () => {
-//             queryClient.invalidateQueries({ queryKey: [GRADE_QUERY_KEY] });
-//         },
-//     });
-// };

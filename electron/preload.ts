@@ -90,4 +90,8 @@ contextBridge.exposeInMainWorld("api", {
     register: (idUsuario: number, template: string) =>
       ipcRenderer.invoke("biometria:register", idUsuario, template),
   },
+  frequencia: {
+    getByUserAndPeriod: (idUsuario: number, mesAno: string) =>
+      ipcRenderer.invoke("frequencia:get-by-user-period", idUsuario, mesAno),
+  },
 });

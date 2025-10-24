@@ -30,6 +30,7 @@ const ModalCadastrarBiometria = ({
   open,
   setOpen,
 }: ModalCadastraBiometriaProps) => {
+  // TODO: Remover quando for para produção
   const firstUpdate = useRef(true);
   const { showSnackbar } = useSnackbar();
   const [status, setStatus] = useState("Parado");
@@ -66,6 +67,7 @@ const ModalCadastrarBiometria = ({
   };
 
   useEffect(() => {
+    // TODO: Remover quando for para produção
     if (firstUpdate.current) {
       firstUpdate.current = false;
       return;

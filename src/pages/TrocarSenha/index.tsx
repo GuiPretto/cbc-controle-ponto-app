@@ -47,7 +47,7 @@ const TrocarSenha = () => {
         {
           onSuccess: () => {
             showSnackbar(`Senha atualizada com sucesso`, "success");
-            navigate("/visualizar-batidas");
+            navigate("/visualizar-frequencia");
           },
 
           onError: (err) =>

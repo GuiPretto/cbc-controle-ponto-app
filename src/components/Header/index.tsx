@@ -9,6 +9,8 @@ import {
 import AccountMenu from "./AccountMenu";
 import DrawerMenu from "./DrawerMenu";
 import ColorModeIconDropdown from "../ColorModeIconDropdown";
+import CbcLogo from "../../assets/logo-cbc.svg";
+
 import { useState } from "react";
 
 const Header = () => {
@@ -23,29 +25,17 @@ const Header = () => {
             mx: { xs: -0.75, sm: -1 },
           }}
         >
-          {/* <NavLink
-            to={"/"}
-            style={{
-              color: "inherit",
-              textDecoration: "none",
-            }}
-          > */}
           <Stack
             direction={"row"}
             justifyContent={"center"}
             alignItems={"center"}
             gap={"1rem"}
           >
-            <img
-              src="../../../public/logo-cbc-icon.png"
-              width={36}
-              height={36}
-            />
+            <img src={CbcLogo} width={36} height={36} />
             <Typography fontSize={"1rem"} fontWeight={600} fontFamily={"Nexa"}>
               CBC - Sistema de Controle de Ponto
             </Typography>
           </Stack>
-          {/* </NavLink> */}
           <Box sx={{ flexGrow: 1 }} />
           <Stack direction={"row"} spacing={1}>
             <ColorModeIconDropdown />

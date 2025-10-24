@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { LoginCard, SignInContainer } from "./styles";
 import ColorModeIconDropdown from "../../components/ColorModeIconDropdown";
-import MinhaLogo from "../../assets/logo-cbc.svg";
+import CbcLogo from "../../assets/logo-cbc.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
@@ -33,7 +33,7 @@ const Login = () => {
     try {
       const result = await authLogin(cpf, password);
       if (result.success) {
-        navigate("/visualizar-batidas");
+        navigate("/visualizar-frequencia");
       } else {
         setError(
           result.error || "Erro de autenticação. Verifique suas credenciais."
@@ -57,7 +57,7 @@ const Login = () => {
           justifyContent={"center"}
           gap={"1rem"}
         >
-          <img src={MinhaLogo} width={36} height={36} />
+          <img src={CbcLogo} width={36} height={36} />
           <Typography
             fontFamily={"Nexa"}
             component="h1"

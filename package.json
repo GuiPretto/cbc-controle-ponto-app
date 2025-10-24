@@ -7,13 +7,27 @@
   "build": {
     "appId": "com.cbc.controleponto",
     "directories": {
-      "buildResources": "public"
+      "buildResources": "public",
+      "output": "release"
     },
+    "files": [
+      "dist-electron/**",
+      "public/**"
+    ],
+    "extraResources": [
+      {
+        "from": "app",
+        "to": "app"
+      },
+      {
+        "from": "electron/bin",
+        "to": "bin"
+      }
+    ],
+    "asar": true,
     "win": {
-      "icon": "icons/icon.ico"
-    },
-    "mac": {
-      "icon": "icons/icon.icns"
+      "icon": "icons/icon.ico",
+      "requestedExecutionLevel": "requireAdministrator"
     }
   },
   "scripts": {
@@ -29,8 +43,10 @@
     "@mui/icons-material": "^7.3.2",
     "@mui/material": "^7.3.2",
     "@mui/x-data-grid": "^8.14.1",
+    "@mui/x-date-pickers": "^8.15.0",
     "@tanstack/react-query": "^5.90.5",
     "axios": "^1.12.2",
+    "dayjs": "^1.11.18",
     "dotenv": "^17.2.3",
     "keytar": "^7.9.0",
     "react": "^18.2.0",
