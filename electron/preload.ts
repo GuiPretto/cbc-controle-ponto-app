@@ -94,9 +94,22 @@ contextBridge.exposeInMainWorld("api", {
   frequencia: {
     getByUserAndPeriod: (idUsuario: number, mesAno: string) =>
       ipcRenderer.invoke("frequencia:get-by-user-period", idUsuario, mesAno),
+    generateReportRegisterFrequencyMonthly: (
+      idUsuario: number,
+      mesAno: string
+    ) =>
+      ipcRenderer.invoke(
+        "frequencia:generate-report-register-frequency-monthly",
+        idUsuario,
+        mesAno
+      ),
   },
   justificativa: {
     register: (params: RegisterJustificativaDto) =>
       ipcRenderer.invoke("justificativa:register", params),
+  },
+  download: {
+    savePdf: (data: ArrayBuffer, defaultName: string) =>
+      ipcRenderer.invoke("download:save-pdf", data, defaultName),
   },
 });

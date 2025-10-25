@@ -29,7 +29,6 @@ class FrequenciaService extends BaseApiService {
     mesAno: string
   ): Promise<ServiceResponse<RegistroFrequenciaMensal>> {
     try {
-      console.log("aqui");
       const response: AxiosResponse<RegistroFrequenciaMensal> =
         await this.client.get(`v1/frequencia/${idUsuario}`, {
           params: {
@@ -45,6 +44,29 @@ class FrequenciaService extends BaseApiService {
       return this.handleApiError(
         error
       ) as ServiceResponse<RegistroFrequenciaMensal>;
+    }
+  }
+  async generateReportRegisterFrequencyMonthly(
+    idUsuario: number,
+    mesAno: string
+  ): Promise<ServiceResponse<ArrayBuffer>> {
+    try {
+      const response: AxiosResponse<ArrayBuffer> = await this.client.get(
+        `v1/frequencia/${idUsuario}/relatorio`,
+        {
+          params: {
+            mesAno,
+          },
+          responseType: "arraybuffer",
+        }
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<ArrayBuffer>;
     }
   }
 }

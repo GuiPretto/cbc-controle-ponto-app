@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { RegistroFrequenciaMensal } from "electron/services/FrequenciaService";
 
 const FREQUENCIA_BY_USER_AND_PERIOD_QUERY_KEY = "frequencia_by_user_and_period";
@@ -37,5 +37,30 @@ export const useGetByUserAndPeriodFrequencia = ({
     placeholderData: (previousData) => previousData,
     enabled: !!idUsuario || !!mesAno,
     staleTime: (1000 * 60 * 1) / 4,
+  });
+};
+
+export const useGenerateReportRegisterFrequencyMonthly = () => {
+  return useMutation<void, Error, { idUsuario: number; mesAno: string }>({
+    mutationFn: async ({ idUsuario, mesAno }) => {
+      const result =
+        await window.api.frequencia.generateReportRegisterFrequencyMonthly(
+          idUsuario,
+          mesAno
+        );
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      const defaultName = `RelatorioFrequencia_${idUsuario}_${mesAno}.pdf`;
+
+      const saveResult = await window.api.download.savePdf(
+        result.data,
+        defaultName
+      );
+
+      if (!saveResult.success) {
+        throw new Error(saveResult.error || "Falha ao salvar o arquivo.");
+      }
+    },
   });
 };

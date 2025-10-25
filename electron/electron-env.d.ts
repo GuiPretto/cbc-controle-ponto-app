@@ -94,9 +94,16 @@ declare global {
       };
       frequencia: {
         getByUserAndPeriod(idUsuario: number, mesAno: string);
+        generateReportRegisterFrequencyMonthly(
+          idUsuario: number,
+          mesAno: string
+        );
       };
       justificativa: {
         register(params: RegisterJustificativaDto);
+      };
+      download: {
+        savePdf(data: ArrayBuffer, defaultName: string);
       };
     };
   }
