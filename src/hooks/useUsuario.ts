@@ -148,7 +148,6 @@ export const useChangePasswordUsuario = () => {
       if (!idUsuario) {
         throw new Error("ID de usuário ausente.");
       }
-      console.log("teste");
       const result = await window.api.usuario.changePassword(idUsuario, senha);
       if (!result.success) {
         throw new Error(result.error);

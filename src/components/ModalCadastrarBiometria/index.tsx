@@ -5,7 +5,7 @@ import { useRegisterBiometria } from "src/hooks/useBiometria";
 import { useSnackbar } from "src/hooks/useSnackbar";
 import { RegisterBiometriaDto } from "electron/services/BiometriaService";
 
-interface ModalCadastraBiometriaProps {
+interface ModalCadastrarBiometriaProps {
   idUsuario: number;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
@@ -29,7 +29,7 @@ const ModalCadastrarBiometria = ({
   idUsuario,
   open,
   setOpen,
-}: ModalCadastraBiometriaProps) => {
+}: ModalCadastrarBiometriaProps) => {
   // TODO: Remover quando for para produção
   const firstUpdate = useRef(true);
   const { showSnackbar } = useSnackbar();

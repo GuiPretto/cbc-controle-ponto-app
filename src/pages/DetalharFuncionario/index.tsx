@@ -6,6 +6,7 @@ import { useGetGrade } from "src/hooks/useGrade";
 import { useCallback, useState } from "react";
 import { useSnackbar } from "src/hooks/useSnackbar";
 import ModalCadastrarBiometria from "src/components/ModalCadastrarBiometria";
+import ModalVisualizarFrequenciaFuncionario from "src/components/ModalVisualizarFrequenciaFuncionario";
 
 const DetalhesFuncionario = () => {
   const navigate = useNavigate();
@@ -17,9 +18,10 @@ const DetalhesFuncionario = () => {
   const { mutate: resetPasswordMutate, isPending: isReseting } =
     useResetPasswordUsuario();
   const [cadastrarBiometriaOpen, setCadastrarBiometriaOpen] = useState(false);
+  const [visualizarFrequenciaOpen, setVisualizarFrequenciaOpen] =
+    useState(false);
 
   const handleResetPassword = useCallback(() => {
-    console.log("teste");
     resetPasswordMutate(idUsuario, {
       onSuccess: () =>
         showSnackbar(
@@ -92,6 +94,12 @@ const DetalhesFuncionario = () => {
         <Box sx={{ flexGrow: 1 }} />
         <Button
           variant="contained"
+          onClick={() => setVisualizarFrequenciaOpen(true)}
+        >
+          Visualizar frequência
+        </Button>
+        <Button
+          variant="contained"
           onClick={() => setCadastrarBiometriaOpen(true)}
         >
           Cadastrar biometria
@@ -116,6 +124,15 @@ const DetalhesFuncionario = () => {
           idUsuario={usuario.id}
           open={cadastrarBiometriaOpen}
           setOpen={setCadastrarBiometriaOpen}
+        />
+      )}
+      {visualizarFrequenciaOpen && usuario?.id && (
+        <ModalVisualizarFrequenciaFuncionario
+          idUsuario={usuario.id}
+          nome={usuario.nome}
+          cpf={usuario.cpf}
+          open={visualizarFrequenciaOpen}
+          setOpen={setVisualizarFrequenciaOpen}
         />
       )}
     </Box>

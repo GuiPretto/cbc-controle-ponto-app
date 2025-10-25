@@ -72,11 +72,9 @@ contextBridge.exposeInMainWorld("api", {
     start: () => ipcRenderer.invoke("fingerprint:start"),
     stop: () => ipcRenderer.invoke("fingerprint:stop"),
     onData: (cb: (data: unknown) => void) => {
-      console.log("aqui1");
       ipcRenderer.on("fingerprint:data", (_e, data) => cb(data));
     },
     onError: (cb: (err: unknown) => void) => {
-      console.log("aqui2");
       ipcRenderer.on("fingerprint:error", (_e, err) => cb(err));
     },
     onStopped: (cb: (info: unknown) => void) => {

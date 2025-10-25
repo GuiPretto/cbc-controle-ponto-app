@@ -31,20 +31,15 @@ const App = () => {
   const ProtectedRoute = () => {
     const { isAuthenticated, requiresPasswordChange } = useAuth();
     const location = useLocation();
-    console.log(isAuthenticated, requiresPasswordChange);
 
-    // Se não estiver autenticado, redireciona para a página de login
     if (!isAuthenticated) {
-      // Usa o 'state' para armazenar o caminho que o usuário tentou acessar
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     if (requiresPasswordChange && location.pathname !== "/trocar-senha") {
-      // Redireciona para a tela de troca de senha
       return <Navigate to={"/trocar-senha"} replace />;
     }
 
-    // Se estiver autenticado, renderiza as rotas filhas (que usam o Layout)
     return <Outlet />;
   };
 
@@ -65,7 +60,6 @@ const App = () => {
                     <Route path="/captura" element={<Captura />} />
                     <Route element={<ProtectedRoute />}>
                       <Route path="/" element={<Layout />}>
-                        {/* <Route index element={<Home />} /> */}
                         <Route
                           path="visualizar-frequencia"
                           element={<VisualizarFrequencia />}
