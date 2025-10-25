@@ -1,5 +1,6 @@
 import { ipcRenderer, contextBridge } from "electron";
 import { UsuarioPageParams } from "./services/UsuarioService";
+import { RegisterJustificativaDto } from "./services/JustificativaService";
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld("ipcRenderer", {
@@ -93,5 +94,9 @@ contextBridge.exposeInMainWorld("api", {
   frequencia: {
     getByUserAndPeriod: (idUsuario: number, mesAno: string) =>
       ipcRenderer.invoke("frequencia:get-by-user-period", idUsuario, mesAno),
+  },
+  justificativa: {
+    register: (params: RegisterJustificativaDto) =>
+      ipcRenderer.invoke("justificativa:register", params),
   },
 });

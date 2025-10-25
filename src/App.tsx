@@ -23,6 +23,7 @@ import EditarFuncionario from "./pages/EditarFuncionario";
 import TrocarSenha from "./pages/TrocarSenha";
 import Captura from "./pages/Captura";
 import VisualizarFrequencia from "./pages/VisualizarFrequencia";
+import RegistrarJustificativa from "./pages/RegistrarJustificativa";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -71,11 +72,7 @@ const App = () => {
                         />
                         <Route
                           path="registrar-justificativa"
-                          element={
-                            <h2 className="p-8 text-2xl text-gray-800 dark:text-gray-200">
-                              registrar-justificativa
-                            </h2>
-                          }
+                          element={<RegistrarJustificativa />}
                         />
                         <Route
                           path="listar-funcionarios"

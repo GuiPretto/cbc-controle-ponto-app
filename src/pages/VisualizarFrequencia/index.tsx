@@ -31,33 +31,33 @@ const VisualizarFrequencia = () => {
       field: "entradaInicial",
       headerName: "Entrada Inicial (E1)",
       width: 300,
-      renderCell: (e) => (
-        <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
-      ),
+      // renderCell: (e) => (
+      //   <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
+      // ),
     },
     {
       field: "saidaInicial",
       headerName: "Saída Inicial (S1)",
       width: 300,
-      renderCell: (e) => (
-        <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
-      ),
+      // renderCell: (e) => (
+      //   <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
+      // ),
     },
     {
       field: "entradaFinal",
       headerName: "Entrada Final (E2)",
       width: 300,
-      renderCell: (e) => (
-        <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
-      ),
+      // renderCell: (e) => (
+      //   <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
+      // ),
     },
     {
       field: "saidaFinal",
       headerName: "Saída Final (S2)",
       width: 300,
-      renderCell: (e) => (
-        <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
-      ),
+      // renderCell: (e) => (
+      //   <>{e.value === "-" ? e.value : dayjs(e.value).format("HH:mm")}</>
+      // ),
     },
     { field: "justificativa", headerName: "Justificativa", width: 300 },
   ];

@@ -1,5 +1,6 @@
 /// <reference types="vite-plugin-electron/electron-env" />
 
+import { RegisterJustificativaDto } from "./services/JustificativaService";
 import { UsuarioPageParams } from "./services/UsuarioService";
 
 export interface AuthResponse {
@@ -93,6 +94,9 @@ declare global {
       };
       frequencia: {
         getByUserAndPeriod(idUsuario: number, mesAno: string);
+      };
+      justificativa: {
+        register(params: RegisterJustificativaDto);
       };
     };
   }
