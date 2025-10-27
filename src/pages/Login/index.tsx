@@ -33,7 +33,11 @@ const Login = () => {
     try {
       const result = await authLogin(cpf, password);
       if (result.success) {
-        navigate("/visualizar-frequencia");
+        if (result.data?.role === "ADMIN") {
+          navigate("/listar-funcionarios");
+        } else {
+          navigate("/visualizar-frequencia");
+        }
       } else {
         setError(
           result.error || "Erro de autenticação. Verifique suas credenciais."

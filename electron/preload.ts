@@ -1,6 +1,11 @@
 import { ipcRenderer, contextBridge } from "electron";
 import { UsuarioPageParams } from "./services/UsuarioService";
 import { RegisterJustificativaDto } from "./services/JustificativaService";
+import {
+  GradePageParams,
+  RegisterGradeDto,
+  UpdateGradeDto,
+} from "./services/GradeService";
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld("ipcRenderer", {
@@ -37,6 +42,12 @@ contextBridge.exposeInMainWorld("api", {
   grade: {
     get: (idGrade: number) => ipcRenderer.invoke("grade:get", idGrade),
     getAll: () => ipcRenderer.invoke("grade:get-all"),
+    getPage: (params: GradePageParams) =>
+      ipcRenderer.invoke("grade:get-page", params),
+    register: (params: RegisterGradeDto) =>
+      ipcRenderer.invoke("grade:register", params),
+    update: (params: UpdateGradeDto) =>
+      ipcRenderer.invoke("grade:update", params),
   },
   usuario: {
     get: (idUsuario: number) => ipcRenderer.invoke("usuario:get", idUsuario),

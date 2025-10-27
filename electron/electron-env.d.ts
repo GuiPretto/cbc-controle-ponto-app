@@ -1,5 +1,10 @@
 /// <reference types="vite-plugin-electron/electron-env" />
 
+import {
+  GradePageParams,
+  RegisterGradeDto,
+  UpdateGradeDto,
+} from "./services/GradeService";
 import { RegisterJustificativaDto } from "./services/JustificativaService";
 import { UsuarioPageParams } from "./services/UsuarioService";
 
@@ -62,6 +67,9 @@ declare global {
       grade: {
         get(idGrade: number);
         getAll();
+        getPage(params: GradePageParams);
+        register(params: RegisterGradeDto);
+        update(params: UpdateGradeDto);
       };
       usuario: {
         get(idUsuario: number);

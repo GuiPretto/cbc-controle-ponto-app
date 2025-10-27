@@ -6,7 +6,7 @@ import { toggleButtonClasses } from "@mui/material/ToggleButton";
 import CheckBoxOutlineBlankRoundedIcon from "@mui/icons-material/CheckBoxOutlineBlankRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
-import { gray, brand } from "./themePrimitives";
+import { gray, brand, orange } from "./themePrimitives";
 
 export const inputsCustomizations: Components<Theme> = {
   MuiButtonBase: {
@@ -56,31 +56,31 @@ export const inputsCustomizations: Components<Theme> = {
             },
             style: {
               color: "white",
-              backgroundColor: gray[900],
-              backgroundImage: `linear-gradient(to bottom, ${gray[700]}, ${gray[800]})`,
-              boxShadow: `inset 0 1px 0 ${gray[600]}, inset 0 -1px 0 1px hsl(220, 0%, 0%)`,
-              border: `1px solid ${gray[700]}`,
+              backgroundColor: orange[400],
+              backgroundImage: `linear-gradient(to bottom, ${orange[400]}, ${orange[600]})`,
+              // boxShadow: `inset 0 1px 0 ${gray[600]}, inset 0 -1px 0 1px hsl(220, 0%, 0%)`,
+              // border: `1px solid ${gray[700]}`,
               "&:hover": {
                 backgroundImage: "none",
-                backgroundColor: gray[700],
+                backgroundColor: orange[500],
                 boxShadow: "none",
               },
               "&:active": {
-                backgroundColor: gray[800],
+                backgroundColor: orange[800],
               },
               ...theme.applyStyles("dark", {
                 color: "black",
-                backgroundColor: gray[50],
-                backgroundImage: `linear-gradient(to bottom, ${gray[100]}, ${gray[50]})`,
+                backgroundColor: orange[50],
+                backgroundImage: `linear-gradient(to bottom, ${orange[100]}, ${orange[50]})`,
                 boxShadow: "inset 0 -1px 0  hsl(220, 30%, 80%)",
-                border: `1px solid ${gray[50]}`,
+                border: `1px solid ${orange[50]}`,
                 "&:hover": {
                   backgroundImage: "none",
-                  backgroundColor: gray[300],
+                  backgroundColor: orange[300],
                   boxShadow: "none",
                 },
                 "&:active": {
-                  backgroundColor: gray[400],
+                  backgroundColor: orange[400],
                 },
               }),
             },

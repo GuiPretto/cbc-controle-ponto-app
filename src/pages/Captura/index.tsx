@@ -16,7 +16,7 @@ const Captura = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
   // TODO: Remover quando for para produção
-  const firstUpdate = useRef(true);
+  // const firstUpdate = useRef(true);
   const [status, setStatus] = useState("Parado");
   const [loadingDispositivo, setLoadingDispositivo] = useState(false);
   const { mutate: registrarMutate } = useRegisterBatida();
@@ -71,10 +71,10 @@ const Captura = () => {
 
   useEffect(() => {
     // TODO: Remover quando for para produção
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    }
+    // if (firstUpdate.current) {
+    //   firstUpdate.current = false;
+    //   return;
+    // }
     async function start() {
       setLoadingDispositivo(true);
       const res = await window.api.fingerprint.start();

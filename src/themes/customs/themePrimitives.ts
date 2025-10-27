@@ -70,16 +70,27 @@ export const green = {
 };
 
 export const orange = {
-  50: "hsl(45, 100%, 97%)",
-  100: "hsl(45, 92%, 90%)",
-  200: "hsl(45, 94%, 80%)",
-  300: "hsl(45, 90%, 65%)",
-  400: "hsl(45, 90%, 40%)",
-  500: "hsl(45, 90%, 35%)",
-  600: "hsl(45, 91%, 25%)",
-  700: "hsl(45, 94%, 20%)",
-  800: "hsl(45, 95%, 16%)",
-  900: "hsl(45, 93%, 12%)",
+  50: "hsl(25, 100%, 97%)",
+  100: "hsl(25, 92%, 90%)",
+  200: "hsl(25, 94%, 80%)",
+  300: "hsl(25, 90%, 65%)",
+
+  // COR PRINCIPAL 1: Laranja Brilhante da Logo
+  400: "hsl(25, 90%, 58%)", // Base Laranja (#F58634)
+
+  // Meio-Tom
+  500: "hsl(25, 90%, 45%)",
+
+  // Tons Escuros (A partir daqui, ou você mantém o Laranja 25°,
+  // ou muda para o Marrom 7° para garantir o contraste da logo.)
+
+  // Vamos usar o Marrom aqui, pois é uma cor crítica da logo.
+  600: "hsl(7, 48%, 42%)", // Mapeamento para Marrom (#9A443A)
+
+  // Tons de Contraste Escuro
+  700: "hsl(7, 50%, 25%)", // Marrom Escuro
+  800: "hsl(7, 55%, 16%)", // Marrom Muito Escuro
+  900: "hsl(7, 60%, 10%)", // Marrom Quase Preto
 };
 
 export const red = {

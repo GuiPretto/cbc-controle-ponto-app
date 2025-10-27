@@ -31,7 +31,7 @@ const ModalCadastrarBiometria = ({
   setOpen,
 }: ModalCadastrarBiometriaProps) => {
   // TODO: Remover quando for para produção
-  const firstUpdate = useRef(true);
+  // const firstUpdate = useRef(true);
   const { showSnackbar } = useSnackbar();
   const [status, setStatus] = useState("Parado");
   const [loadingDispositivo, setLoadingDispositivo] = useState(false);
@@ -68,10 +68,10 @@ const ModalCadastrarBiometria = ({
 
   useEffect(() => {
     // TODO: Remover quando for para produção
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    }
+    // if (firstUpdate.current) {
+    //   firstUpdate.current = false;
+    //   return;
+    // }
     async function start() {
       setLoadingDispositivo(true);
       const res = await window.api.fingerprint.start();

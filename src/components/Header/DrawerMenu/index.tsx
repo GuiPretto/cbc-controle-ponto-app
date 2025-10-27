@@ -15,6 +15,7 @@ import {
 } from "@mui/icons-material";
 import { NavLink, useLocation, matchPath } from "react-router-dom";
 import { Dispatch, SetStateAction } from "react";
+import { useAuth } from "src/hooks/useAuth";
 
 const DrawerMenu = ({
   expanded,
@@ -23,6 +24,7 @@ const DrawerMenu = ({
   expanded: boolean;
   setExpanded: Dispatch<SetStateAction<boolean>>;
 }) => {
+  const { role } = useAuth();
   const NavItem = ({
     to,
     text,
@@ -71,44 +73,57 @@ const DrawerMenu = ({
         }}
       >
         <nav>
-          <List dense>
-            <ListSubheader
-              sx={{
-                bgcolor: "background.paper",
-              }}
-            >
-              Funcionário
-            </ListSubheader>
-            <NavItem
-              to="/visualizar-frequencia"
-              text="Visualizar frequência"
-              icon={CalendarMonth}
-            />
-            <NavItem
-              to="/registrar-justificativa"
-              text="Registrar justificativa"
-              icon={EditCalendar}
-            />
-          </List>
-          <List dense>
-            <ListSubheader
-              sx={{
-                bgcolor: "background.paper",
-              }}
-            >
-              Gestão
-            </ListSubheader>
-            <NavItem
-              to="/listar-funcionarios"
-              text="Listar funcionários"
-              icon={Group}
-            />
-            <NavItem
-              to="/cadastrar-funcionario"
-              text="Cadastrar funcionário"
-              icon={PersonAdd}
-            />
-          </List>
+          {role === "ADMIN" ? (
+            <List dense>
+              <ListSubheader
+                sx={{
+                  bgcolor: "background.paper",
+                }}
+              >
+                Gestão
+              </ListSubheader>
+              <NavItem
+                to="/listar-funcionarios"
+                text="Listar funcionários"
+                icon={Group}
+              />
+              <NavItem
+                to="/cadastrar-funcionario"
+                text="Cadastrar funcionário"
+                icon={PersonAdd}
+              />
+              <NavItem
+                to="/listar-grades"
+                text="Listar grades"
+                icon={CalendarMonth}
+              />
+              <NavItem
+                to="/cadastrar-grade"
+                text="Cadastrar grade"
+                icon={EditCalendar}
+              />
+            </List>
+          ) : (
+            <List dense>
+              <ListSubheader
+                sx={{
+                  bgcolor: "background.paper",
+                }}
+              >
+                Funcionário
+              </ListSubheader>
+              <NavItem
+                to="/visualizar-frequencia"
+                text="Visualizar frequência"
+                icon={CalendarMonth}
+              />
+              <NavItem
+                to="/registrar-justificativa"
+                text="Registrar justificativa"
+                icon={EditCalendar}
+              />
+            </List>
+          )}
         </nav>
       </Drawer>
     </>

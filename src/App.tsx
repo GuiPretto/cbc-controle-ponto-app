@@ -24,6 +24,10 @@ import TrocarSenha from "./pages/TrocarSenha";
 import Captura from "./pages/Captura";
 import VisualizarFrequencia from "./pages/VisualizarFrequencia";
 import RegistrarJustificativa from "./pages/RegistrarJustificativa";
+import ListarGrades from "./pages/ListarGrades";
+import DetalharGrade from "./pages/DetalharGrade";
+import CadastrarGrade from "./pages/CadastrarGrade";
+import EditarGrade from "./pages/EditarGrade";
 
 const App = () => {
   const queryClient = new QueryClient();
@@ -83,6 +87,22 @@ const App = () => {
                         <Route
                           path="cadastrar-funcionario"
                           element={<CadastrarFuncionario />}
+                        />
+                        <Route
+                          path="listar-grades"
+                          element={<ListarGrades />}
+                        />
+                        <Route
+                          path="listar-grades/:id"
+                          element={<DetalharGrade />}
+                        />
+                        <Route
+                          path="listar-grades/:id/editar"
+                          element={<EditarGrade />}
+                        />
+                        <Route
+                          path="cadastrar-grade"
+                          element={<CadastrarGrade />}
                         />
                       </Route>
                     </Route>

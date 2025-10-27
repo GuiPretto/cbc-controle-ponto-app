@@ -7,11 +7,13 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
+import ModalPerfilUsuario from "src/components/ModalPerfilUsuario";
 import { useAuth } from "src/hooks/useAuth";
 
 const AccountMenu = () => {
   const { logout: authLogout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [modalPerfilOpen, setModalPerfilOpen] = useState(false);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -27,6 +29,11 @@ const AccountMenu = () => {
     } catch (err) {
       console.error("Login IPC error:", err);
     }
+  };
+
+  const handlePerfil = () => {
+    handleClose();
+    setModalPerfilOpen(true);
   };
 
   return (
@@ -55,7 +62,7 @@ const AccountMenu = () => {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem>
+        <MenuItem onClick={handlePerfil}>
           <ListItemIcon>
             <AccountCircle fontSize="small" />
           </ListItemIcon>
@@ -68,6 +75,7 @@ const AccountMenu = () => {
           <ListItemText>Sair</ListItemText>
         </MenuItem>
       </Menu>
+      <ModalPerfilUsuario open={modalPerfilOpen} setOpen={setModalPerfilOpen} />
     </>
   );
 };
