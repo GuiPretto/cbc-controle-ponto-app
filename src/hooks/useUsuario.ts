@@ -10,6 +10,7 @@ import {
 import { useAuth } from "./useAuth";
 
 const USUARIO_QUERY_KEY = "usuario";
+const USUARIO_CURRENT_QUERY_KEY = "usuario_current";
 const USUARIO_PAGE_QUERY_KEY = "usuario_page";
 
 export const useGetUsuario = (idUsuario?: number) => {
@@ -32,6 +33,27 @@ export const useGetUsuario = (idUsuario?: number) => {
     enabled: !!idUsuario,
 
     staleTime: 1000 * 60 * 1,
+  });
+};
+
+export const useGetCurrentUsuario = (idUsuario?: number) => {
+  return useQuery<Usuario, Error>({
+    queryKey: [USUARIO_CURRENT_QUERY_KEY, idUsuario],
+
+    queryFn: async () => {
+      if (!idUsuario) {
+        throw new Error("ID de usuário ausente.");
+      }
+      const result = await window.api.usuario.get(idUsuario);
+
+      if (result.success) {
+        return result.data;
+      }
+      throw new Error(result.error);
+    },
+
+    placeholderData: (previousData) => previousData,
+    enabled: !!idUsuario,
   });
 };
 
