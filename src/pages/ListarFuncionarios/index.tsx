@@ -31,9 +31,11 @@ import {
 import { ptBR } from "@mui/x-data-grid/locales";
 import { useNavigate } from "react-router-dom";
 import InputMask from "react-input-mask";
+import { useAuth } from "src/hooks/useAuth";
 
 const ListarFuncionarios = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const DEFAULT_PAGE_SIZE = 10;
   const [page, setPage] = useState(0);
@@ -166,6 +168,7 @@ const ListarFuncionarios = () => {
               )
             }
             label={isActive ? "Inativar" : "Ativar"}
+            disabled={role !== "MASTER"}
             onClick={() => {
               if (isActive) {
                 handleDeactivate(id);

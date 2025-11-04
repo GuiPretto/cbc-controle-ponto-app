@@ -40,6 +40,9 @@ const usuarioHandlers = () => {
   ipcMain.handle("usuario:reset-password", (_, idUsuario: number) =>
     usuarioService.resetPassword(idUsuario)
   );
+  ipcMain.handle("usuario:change-admin", (_, idUsuario: number) =>
+    usuarioService.changeAdmin(idUsuario)
+  );
 };
 
 export default usuarioHandlers;

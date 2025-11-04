@@ -78,6 +78,8 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.invoke("usuario:change-password", idUsuario, senha),
     resetPassword: (idUsuario: number) =>
       ipcRenderer.invoke("usuario:reset-password", idUsuario),
+    changeAdmin: (idUsuario: number) =>
+      ipcRenderer.invoke("usuario:change-admin", idUsuario),
   },
   fingerprint: {
     start: () => ipcRenderer.invoke("fingerprint:start"),

@@ -23,7 +23,7 @@ const RegistrarJustificativa = () => {
   const navigate = useNavigate();
   const { idUsuario } = useAuth();
   const { showSnackbar } = useSnackbar();
-  const [data, setData] = useState<Dayjs>(dayjs());
+  const [data, setData] = useState<Dayjs>(dayjs().subtract(1, "day"));
   const [dataError, setDataError] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [motivoError, setMotivoError] = useState(false);
@@ -103,6 +103,7 @@ const RegistrarJustificativa = () => {
         <Stack direction={"row"} gap={"1rem"}>
           <FormControl>
             <DatePicker
+              readOnly
               value={data}
               onChange={(e) => setData(dayjs(e))}
               name="data"

@@ -1,15 +1,21 @@
 import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams } from "react-router-dom";
-import { useGetUsuario, useResetPasswordUsuario } from "src/hooks/useUsuario";
+import {
+  useChangeAdminUsuario,
+  useGetUsuario,
+  useResetPasswordUsuario,
+} from "src/hooks/useUsuario";
 import { useGetGrade } from "src/hooks/useGrade";
 import { useCallback, useState } from "react";
 import { useSnackbar } from "src/hooks/useSnackbar";
 import ModalCadastrarBiometria from "src/components/ModalCadastrarBiometria";
 import ModalVisualizarFrequenciaFuncionario from "src/components/ModalVisualizarFrequenciaFuncionario";
+import { useAuth } from "src/hooks/useAuth";
 
 const DetalhesFuncionario = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const { showSnackbar } = useSnackbar();
   const { id: idUsuarioString } = useParams<{ id: string }>();
   const idUsuario = idUsuarioString ? parseInt(idUsuarioString, 10) : undefined;
@@ -17,6 +23,8 @@ const DetalhesFuncionario = () => {
   const { data: grade } = useGetGrade(usuario?.idGrade ?? undefined);
   const { mutate: resetPasswordMutate, isPending: isReseting } =
     useResetPasswordUsuario();
+  const { mutate: changeAdminMutate, isPending: isChangingAdmin } =
+    useChangeAdminUsuario();
   const [cadastrarBiometriaOpen, setCadastrarBiometriaOpen] = useState(false);
   const [visualizarFrequenciaOpen, setVisualizarFrequenciaOpen] =
     useState(false);
@@ -40,6 +48,23 @@ const DetalhesFuncionario = () => {
         showSnackbar(`Falha ao resetar a senha: ${err.message}`, "error"),
     });
   }, [resetPasswordMutate, showSnackbar, idUsuario, usuario]);
+
+  const handleChangeAdmin = useCallback(() => {
+    changeAdminMutate(idUsuario, {
+      onSuccess: (e) =>
+        showSnackbar(
+          `Usuário ${e?.nome} ${
+            e?.admin ? "tornou-se admin" : "deixou de ser admin"
+          }`,
+          "success"
+        ),
+      onError: (err) =>
+        showSnackbar(
+          `Falha ao alterar o papel de admin: ${err.message}`,
+          "error"
+        ),
+    });
+  }, [changeAdminMutate, showSnackbar, idUsuario]);
 
   return (
     <Box p={"2rem"}>
@@ -95,11 +120,20 @@ const DetalhesFuncionario = () => {
           variant="contained"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/listar-funcionarios")}
-          disabled={isReseting}
+          disabled={isReseting || isChangingAdmin}
         >
           Voltar
         </Button>
         <Box sx={{ flexGrow: 1 }} />
+        {role === "MASTER" && (
+          <Button
+            variant="contained"
+            onClick={handleChangeAdmin}
+            disabled={isReseting || isChangingAdmin}
+          >
+            {usuario?.admin ? "Remover admin" : "Tornar admin"}
+          </Button>
+        )}
         <Button
           variant="contained"
           onClick={() => setVisualizarFrequenciaOpen(true)}
@@ -115,14 +149,14 @@ const DetalhesFuncionario = () => {
         <Button
           variant="contained"
           onClick={handleResetPassword}
-          disabled={isReseting}
+          disabled={isReseting || isChangingAdmin}
         >
           Resetar senha
         </Button>
         <Button
           variant="contained"
           onClick={() => navigate(`/listar-funcionarios/${idUsuario}/editar`)}
-          disabled={isReseting}
+          disabled={isReseting || isChangingAdmin}
         >
           Editar
         </Button>

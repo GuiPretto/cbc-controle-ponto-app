@@ -196,3 +196,26 @@ export const useResetPasswordUsuario = () => {
     },
   });
 };
+
+export const useChangeAdminUsuario = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<Usuario, Error, number | undefined>({
+    mutationFn: async (idUsuario?: number) => {
+      if (!idUsuario) {
+        throw new Error("ID de usuário ausente.");
+      }
+      const result = await window.api.usuario.changeAdmin(idUsuario);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
+    },
+    onSuccess: (usuario) => {
+      queryClient.invalidateQueries({
+        queryKey: [USUARIO_QUERY_KEY, usuario.id],
+      });
+      queryClient.invalidateQueries({ queryKey: [USUARIO_PAGE_QUERY_KEY] });
+    },
+  });
+};

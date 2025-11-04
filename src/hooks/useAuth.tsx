@@ -14,7 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   requiresPasswordChange: boolean;
   idUsuario: number | undefined;
-  role: "USER" | "ADMIN";
+  role: "USER" | "ADMIN" | "MASTER";
   login: (cpf: string, password: string) => Promise<ServiceResponse<UserInfo>>;
   logout: () => void;
   senhaTrocada: () => void;

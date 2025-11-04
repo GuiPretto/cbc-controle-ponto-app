@@ -86,6 +86,7 @@ declare global {
         register(nome: string, cpf: string, email: string, idGrade: number);
         changePassword(idUsuario: number, senha: string);
         resetPassword(idUsuario: number);
+        changeAdmin(idUsuario: number);
       };
       fingerprint: {
         start();

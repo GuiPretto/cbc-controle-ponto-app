@@ -73,7 +73,7 @@ const DrawerMenu = ({
         }}
       >
         <nav>
-          {role === "ADMIN" ? (
+          {["ADMIN", "MASTER"].includes(role) && (
             <List dense>
               <ListSubheader
                 sx={{
@@ -103,7 +103,8 @@ const DrawerMenu = ({
                 icon={EditCalendar}
               />
             </List>
-          ) : (
+          )}
+          {["ADMIN", "USER"].includes(role) && (
             <List dense>
               <ListSubheader
                 sx={{

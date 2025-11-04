@@ -96,6 +96,13 @@ const DataGridFrequencia = ({ idUsuario }: { idUsuario?: number }) => {
       align: "center",
       width: 180,
     },
+    {
+      field: "faltas",
+      headerName: `Faltas (${registroFrequenciaMensal?.faltasGeral})`,
+      headerAlign: "center",
+      align: "center",
+      width: 180,
+    },
     { field: "justificativa", headerName: "Justificativa", width: 300 },
   ];
 

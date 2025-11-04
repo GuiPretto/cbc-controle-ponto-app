@@ -94,7 +94,7 @@ const Login = () => {
                 onChange={(e) => setCpf(e.target.value)}
                 maskChar=" "
               >
-                {() => <TextField />}
+                {() => <TextField placeholder="012.345.678-90" />}
               </InputMask>
             }
           </FormControl>

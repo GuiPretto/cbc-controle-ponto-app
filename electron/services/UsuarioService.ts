@@ -10,6 +10,7 @@ export interface Usuario {
   admin: boolean;
   dataCriacao: string;
   email: string;
+  master: boolean;
   idGrade: number;
 }
 
@@ -189,6 +190,21 @@ class UsuarioService extends BaseApiService {
     try {
       const response: AxiosResponse<Usuario> = await this.client.patch(
         `v1/usuario/${idUsuario}/resetar-senha`
+      );
+
+      return {
+        success: true,
+        data: response.data,
+      };
+    } catch (error: unknown) {
+      return this.handleApiError(error) as ServiceResponse<Usuario>;
+    }
+  }
+
+  async changeAdmin(idUsuario: number): Promise<ServiceResponse<Usuario>> {
+    try {
+      const response: AxiosResponse<Usuario> = await this.client.patch(
+        `v1/usuario/${idUsuario}/alterar-admin`
       );
 
       return {

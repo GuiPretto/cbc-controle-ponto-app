@@ -7,6 +7,7 @@ export interface RegistroFrequenciaMensal {
   nome: string;
   cpf: string;
   mesReferencia: string;
+  faltasGeral: string;
   frequencias: Frequencia[];
 }
 
@@ -17,6 +18,7 @@ export interface Frequencia {
   saidaInicial: string;
   entradaFinal: string;
   saidaFinal: string;
+  faltas: string;
 }
 
 class FrequenciaService extends BaseApiService {
