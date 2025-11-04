@@ -30,6 +30,7 @@ import {
 } from "src/hooks/useUsuario";
 import { ptBR } from "@mui/x-data-grid/locales";
 import { useNavigate } from "react-router-dom";
+import InputMask from "react-input-mask";
 
 const ListarFuncionarios = () => {
   const navigate = useNavigate();
@@ -113,15 +114,23 @@ const ListarFuncionarios = () => {
 
   const handleFilterApply = useCallback(() => {
     setNome(nomeFiltro);
-    setCpf(cpfFiltro);
+    setCpf(cpfFiltro?.replace(/\D/g, ""));
     setEmail(emailFiltro);
     setAtivo(ativoFiltro.trim());
     setPage(0);
   }, [nomeFiltro, cpfFiltro, emailFiltro, ativoFiltro]);
 
+  const formatCpf = (cpfValue: string) => {
+    const numbers = String(cpfValue).replace(/\D/g, "");
+    if (numbers.length !== 11) {
+      return cpfValue;
+    }
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   const columns: GridColDef[] = [
     { field: "nome", headerName: "Nome", width: 200 },
-    { field: "cpf", headerName: "CPF", width: 300 },
+    { field: "cpf", headerName: "CPF", width: 300, valueFormatter: formatCpf },
     { field: "email", headerName: "E-mail", width: 300 },
     {
       field: "ativo",
@@ -188,25 +197,19 @@ const ListarFuncionarios = () => {
           fullWidth
           disabled={isFetching || isActivating || isDeactivating}
         />
-        <TextField
-          value={cpfFiltro}
-          onChange={(e) => setCpfFiltro(e.target.value)}
-          type="number"
-          name="cpfFiltro"
-          label="CPF"
-          fullWidth
-          disabled={isFetching || isActivating || isDeactivating}
-          sx={{
-            "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-              {
-                "-webkit-appearance": "none",
-                margin: 0,
-              },
-            "& input[type=number]": {
-              "-moz-appearance": "textfield",
-            },
-          }}
-        />
+        {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          <InputMask
+            mask="999.999.999-99"
+            value={cpfFiltro}
+            onChange={(e) => setCpfFiltro(e.target.value)}
+            disabled={isFetching || isActivating || isDeactivating}
+            maskChar=" "
+          >
+            {() => <TextField label="CPF" fullWidth />}
+          </InputMask>
+        }
         <TextField
           value={emailFiltro}
           onChange={(e) => setEmailFiltro(e.target.value)}

@@ -28,6 +28,14 @@ const ModalPerfilUsuario = ({ open, setOpen }: ModalPerfilUsuarioProps) => {
   const { data: usuario } = useGetCurrentUsuario(idUsuario);
   const { data: grade } = useGetGrade(usuario?.idGrade ?? undefined);
 
+  const formatCpf = (cpfValue: string) => {
+    const numbers = String(cpfValue).replace(/\D/g, "");
+    if (numbers.length !== 11) {
+      return cpfValue;
+    }
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <Stack sx={sxBox} gap={"1.5rem"}>
@@ -41,7 +49,9 @@ const ModalPerfilUsuario = ({ open, setOpen }: ModalPerfilUsuarioProps) => {
           </Paper>
           <Paper sx={{ px: 2, py: 1, width: "100%" }}>
             <Typography variant="overline">CPF</Typography>
-            <Typography variant="body1">{usuario?.cpf}</Typography>
+            <Typography variant="body1">
+              {usuario?.cpf && formatCpf(usuario?.cpf)}
+            </Typography>
           </Paper>
         </Stack>
         <Stack direction={"row"} gap={"1rem"} sx={{}}>

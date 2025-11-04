@@ -18,6 +18,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useGrades } from "src/hooks/useGrade";
 import { useSnackbar } from "src/hooks/useSnackbar";
 import { useGetUsuario, useUpdateUsuario } from "src/hooks/useUsuario";
+import InputMask from "react-input-mask";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -49,7 +50,8 @@ const EditarFuncionario = () => {
     setGradeError(false);
     if (
       !nome ||
-      !cpf ||
+      !cpf?.replace(/\D/g, "") ||
+      cpf?.replace(/\D/g, "").length !== 11 ||
       !email ||
       !EMAIL_REGEX.test(email) ||
       !grade ||
@@ -58,7 +60,7 @@ const EditarFuncionario = () => {
       if (!nome) {
         setNomeError(true);
       }
-      if (!cpf) {
+      if (!cpf?.replace(/\D/g, "") || cpf?.replace(/\D/g, "").length !== 11) {
         setCpfError(true);
       }
       if (!email || !EMAIL_REGEX.test(email)) {
@@ -77,7 +79,7 @@ const EditarFuncionario = () => {
       {
         id: idUsuario,
         nome,
-        cpf,
+        cpf: cpf?.replace(/\D/g, ""),
         email,
         idGrade: Number(grade),
       },
@@ -113,27 +115,27 @@ const EditarFuncionario = () => {
             helperText={nomeError && "Nome é obrigatório"}
             fullWidth
           />
-
-          <TextField
-            value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
-            type="number"
-            name="cpf"
-            label="CPF"
-            fullWidth
-            error={cpfError}
-            helperText={cpfError && "CPF é obrigatório"}
-            sx={{
-              "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                {
-                  "-webkit-appearance": "none",
-                  margin: 0,
-                },
-              "& input[type=number]": {
-                "-moz-appearance": "textfield",
-              },
-            }}
-          />
+          {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            <InputMask
+              mask="999.999.999-99"
+              value={cpf}
+              onChange={(e) => setCpf(e.target.value)}
+              maskChar=" "
+            >
+              {() => (
+                <TextField
+                  label="CPF"
+                  fullWidth
+                  error={cpfError}
+                  helperText={
+                    cpfError && "CPF é obrigatório e deve conter 11 dígitos "
+                  }
+                />
+              )}
+            </InputMask>
+          }
           <TextField
             value={email}
             onChange={(e) => setEmail(e.target.value)}

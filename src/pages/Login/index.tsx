@@ -13,6 +13,7 @@ import CbcLogo from "../../assets/logo-cbc.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
+import InputMask from "react-input-mask";
 
 const Login = () => {
   const [cpf, setCpf] = useState("");
@@ -25,13 +26,13 @@ const Login = () => {
     event.preventDefault();
     setError("");
 
-    if (!cpf || !password) {
+    if (!cpf.replace(/\D/g, "") || !password) {
       setError("Por favor, preencha todos os campos.");
       return;
     }
 
     try {
-      const result = await authLogin(cpf, password);
+      const result = await authLogin(cpf.replace(/\D/g, ""), password);
       if (result.success) {
         if (result.data?.role === "ADMIN") {
           navigate("/listar-funcionarios");
@@ -84,29 +85,18 @@ const Login = () => {
         >
           <FormControl>
             <FormLabel htmlFor="email">CPF</FormLabel>
-            <TextField
-              id="cpf"
-              type="number"
-              name="cpf"
-              placeholder="12345678912"
-              autoComplete="email"
-              autoFocus
-              required
-              fullWidth
-              variant="outlined"
-              value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
-              sx={{
-                "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                  {
-                    "-webkit-appearance": "none",
-                    margin: 0,
-                  },
-                "& input[type=number]": {
-                  "-moz-appearance": "textfield",
-                },
-              }}
-            />
+            {
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              <InputMask
+                mask="999.999.999-99"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                maskChar=" "
+              >
+                {() => <TextField />}
+              </InputMask>
+            }
           </FormControl>
           <FormControl>
             <FormLabel htmlFor="password">Senha</FormLabel>
