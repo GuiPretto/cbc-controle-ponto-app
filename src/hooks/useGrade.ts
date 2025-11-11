@@ -30,7 +30,7 @@ export const useGetGrade = (idGrade?: number) => {
     placeholderData: (previousData) => previousData,
     enabled: !!idGrade,
 
-    staleTime: Infinity,
+    staleTime: 1000 * 60 * 1,
   });
 };
 

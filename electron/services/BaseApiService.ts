@@ -7,6 +7,7 @@ export interface UserInfo {
   username: string;
   role: string;
   requerTrocarSenha: boolean;
+  idGrade: number;
   // Adicione mais campos do usuário aqui
 }
 
@@ -158,6 +159,7 @@ class BaseApiService {
         username: usernameResponse,
         role,
         requerTrocarSenha,
+        idGrade,
       } = response.data;
       accessToken = accessTokenResponse;
       currentIdUser = idUser.toString();
@@ -175,6 +177,7 @@ class BaseApiService {
           username: usernameResponse,
           role: role,
           requerTrocarSenha: requerTrocarSenha,
+          idGrade,
         },
       };
     } catch (error: unknown) {

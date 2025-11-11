@@ -28,6 +28,14 @@ const Captura = () => {
     undefined
   );
 
+  const formatCpf = (cpfValue: string) => {
+    const numbers = String(cpfValue).replace(/\D/g, "");
+    if (numbers.length !== 11) {
+      return cpfValue;
+    }
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   const handleRegistrar = (template: string) => {
     if (isProcessandoRef.current) return;
     isProcessandoRef.current = true;
@@ -111,7 +119,7 @@ const Captura = () => {
               textAlign={"center"}
               sx={{ width: "100%", fontSize: "1.25rem" }}
             >
-              {usuarioInfo.cpf}
+              {formatCpf(usuarioInfo.cpf)}
             </Typography>
           </>
         ) : (

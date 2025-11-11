@@ -34,6 +34,14 @@ const ModalVisualizarFrequenciaFuncionario = ({
   open,
   setOpen,
 }: ModalVisualizarFrequenciaFuncionarioProps) => {
+  const formatCpf = (cpfValue: string) => {
+    const numbers = String(cpfValue).replace(/\D/g, "");
+    if (numbers.length !== 11) {
+      return cpfValue;
+    }
+    return numbers.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  };
+
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
       <Stack sx={sxBox} gap={"1.5rem"}>
@@ -47,7 +55,7 @@ const ModalVisualizarFrequenciaFuncionario = ({
           <Box>
             <Typography variant="overline">Cpf</Typography>
             <Typography variant="body1" sx={{ mb: 1 }}>
-              {cpf}
+              {cpf && formatCpf(cpf)}
             </Typography>
           </Box>
         </Stack>

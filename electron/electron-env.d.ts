@@ -5,7 +5,10 @@ import {
   RegisterGradeDto,
   UpdateGradeDto,
 } from "./services/GradeService";
-import { RegisterJustificativaDto } from "./services/JustificativaService";
+import {
+  RegisterJustificativaDto,
+  UpdateJustificativaDto,
+} from "./services/JustificativaService";
 import { UsuarioPageParams } from "./services/UsuarioService";
 
 export interface AuthResponse {
@@ -15,6 +18,7 @@ export interface AuthResponse {
   username: string;
   role: string;
   requerTrocarSenha: boolean;
+  idGrade: number;
 }
 
 // Resposta padronizada para o Renderer
@@ -109,7 +113,10 @@ declare global {
         );
       };
       justificativa: {
+        getByUserAndDate(idUsuario: number, data: string);
         register(params: RegisterJustificativaDto);
+        update(params: UpdateJustificativaDto);
+        delete(idJustificativa: number);
       };
       download: {
         savePdf(data: ArrayBuffer, defaultName: string);

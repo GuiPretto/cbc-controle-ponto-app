@@ -15,6 +15,7 @@ interface AuthContextType {
   requiresPasswordChange: boolean;
   idUsuario: number | undefined;
   role: "USER" | "ADMIN" | "MASTER";
+  idGrade: number | undefined;
   login: (cpf: string, password: string) => Promise<ServiceResponse<UserInfo>>;
   logout: () => void;
   senhaTrocada: () => void;
@@ -38,6 +39,7 @@ export const AuthProvider: React.FC<{
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
   const [idUsuario, setIdUsuario] = useState<number | undefined>(undefined);
   const [role, setRole] = useState<"USER" | "ADMIN">("USER");
+  const [idGrade, setIdGrade] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const checkInitialAuth = async () => {
@@ -77,6 +79,7 @@ export const AuthProvider: React.FC<{
       setIsAuthenticated(true);
       setRequiresPasswordChange(result.data.requerTrocarSenha);
       setIdUsuario(result.data.id);
+      setIdGrade(result.data.idGrade);
       if (result.data.role) {
         setRole(result.data.role);
       }
@@ -106,6 +109,7 @@ export const AuthProvider: React.FC<{
       requiresPasswordChange,
       idUsuario,
       role,
+      idGrade,
       login,
       logout,
       senhaTrocada,
@@ -116,6 +120,7 @@ export const AuthProvider: React.FC<{
       requiresPasswordChange,
       idUsuario,
       role,
+      idGrade,
       login,
       logout,
       senhaTrocada,

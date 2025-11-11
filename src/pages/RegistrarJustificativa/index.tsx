@@ -13,17 +13,23 @@ import {
 import { red } from "@mui/material/colors";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "src/hooks/useAuth";
-import { useRegisterJustificativa } from "src/hooks/useJustificativa";
+import { useGetGrade } from "src/hooks/useGrade";
+import {
+  useDeleteJustificativa,
+  useGetByUserAndDateJustificativa,
+  useRegisterJustificativa,
+  useUpdateJustificativa,
+} from "src/hooks/useJustificativa";
 import { useSnackbar } from "src/hooks/useSnackbar";
 
 const RegistrarJustificativa = () => {
   const navigate = useNavigate();
-  const { idUsuario } = useAuth();
+  const { idUsuario, idGrade } = useAuth();
   const { showSnackbar } = useSnackbar();
-  const [data, setData] = useState<Dayjs>(dayjs().subtract(1, "day"));
+  const [data, setData] = useState<Dayjs>(dayjs());
   const [dataError, setDataError] = useState(false);
   const [motivo, setMotivo] = useState("");
   const [motivoError, setMotivoError] = useState(false);
@@ -36,6 +42,13 @@ const RegistrarJustificativa = () => {
   const [periodosError, setPeriodosError] = useState(false);
   const { mutate: cadastrarMutate, isPending: isCadastrando } =
     useRegisterJustificativa();
+  const { mutate: editarMutate, isPending: isEditando } =
+    useUpdateJustificativa();
+  const { mutate: excluirMutate, isPending: isExcluindo } =
+    useDeleteJustificativa();
+  const { data: grade } = useGetGrade(idGrade ?? undefined);
+  const { data: justificativa, isLoading: isBuscandoJustificativa } =
+    useGetByUserAndDateJustificativa(idUsuario, data.format("YYYY-MM-DD"));
 
   const handleCadastrar = () => {
     setDataError(false);
@@ -77,13 +90,6 @@ const RegistrarJustificativa = () => {
       },
       {
         onSuccess: () => {
-          setMotivo("");
-          setPeriodos({
-            e1: false,
-            s1: false,
-            e2: false,
-            s2: false,
-          });
           showSnackbar("Justificativa cadastrada com sucesso!", "success");
           navigate("/visualizar-frequencia");
         },
@@ -93,6 +99,136 @@ const RegistrarJustificativa = () => {
       }
     );
   };
+
+  const handleEditar = () => {
+    setDataError(false);
+    setMotivoError(false);
+    setPeriodosError(false);
+    if (
+      !idUsuario ||
+      !data ||
+      !motivo ||
+      Object.values(periodos).every((valor) => !valor)
+    ) {
+      if (!idUsuario) {
+        showSnackbar(
+          "Ocorreu um erro, por favor, deslogue e logue novamente.",
+          "error"
+        );
+      }
+      if (!data) {
+        setDataError(true);
+      }
+      if (!motivo) {
+        setMotivoError(true);
+      }
+      if (Object.values(periodos).every((valor) => !valor)) {
+        setPeriodosError(true);
+      }
+      return;
+    }
+
+    editarMutate(
+      {
+        id: justificativa?.id,
+        motivo,
+        entradaInicial: periodos.e1,
+        saidaInicial: periodos.s1,
+        entradaFinal: periodos.e2,
+        saidaFinal: periodos.s2,
+      },
+      {
+        onSuccess: () => {
+          showSnackbar("Justificativa cadastrada com sucesso!", "success");
+          navigate("/visualizar-frequencia");
+        },
+        onError: (e) => {
+          showSnackbar(e.message, "error");
+        },
+      }
+    );
+  };
+
+  const handleExcluir = () => {
+    setDataError(false);
+    setMotivoError(false);
+    setPeriodosError(false);
+    if (!justificativa?.id || !idUsuario) {
+      showSnackbar(
+        "Ocorreu um erro, por favor, deslogue e logue novamente.",
+        "error"
+      );
+      return;
+    }
+    excluirMutate(
+      {
+        id: justificativa.id,
+        idUsuario,
+      },
+      {
+        onSuccess: () => {
+          showSnackbar("Justificativa excluída com sucesso!", "success");
+          navigate("/visualizar-frequencia");
+        },
+        onError: (e) => {
+          showSnackbar(e.message, "error");
+        },
+      }
+    );
+  };
+
+  const getDiaUtil = useCallback(
+    (diaSemana: number) => {
+      switch (diaSemana) {
+        case 0:
+          return grade?.dom;
+        case 1:
+          return grade?.seg;
+        case 2:
+          return grade?.ter;
+        case 3:
+          return grade?.qua;
+        case 4:
+          return grade?.qui;
+        case 5:
+          return grade?.sex;
+        case 6:
+          return grade?.sab;
+      }
+    },
+    [grade]
+  );
+
+  const getDiaAnteriorNaGrade = useCallback(
+    (diaAtual: Dayjs) => {
+      const diaAnterior = diaAtual.subtract(1, "day");
+      if (getDiaUtil(diaAnterior.day())) {
+        return diaAnterior;
+      } else {
+        return getDiaAnteriorNaGrade(diaAnterior);
+      }
+    },
+    [getDiaUtil]
+  );
+
+  useEffect(() => {
+    if (grade) {
+      const teste = getDiaAnteriorNaGrade(dayjs());
+      setData(teste);
+    }
+  }, [getDiaAnteriorNaGrade, grade]);
+
+  useEffect(() => {
+    if (justificativa) {
+      setMotivo(justificativa.motivo);
+      setPeriodos({
+        e1: justificativa.entradaInicial,
+        s1: justificativa.saidaInicial,
+        e2: justificativa.entradaFinal,
+        s2: justificativa.saidaFinal,
+      });
+    }
+  }, [justificativa]);
 
   return (
     <Box p={"2rem"}>
@@ -105,7 +241,6 @@ const RegistrarJustificativa = () => {
             <DatePicker
               readOnly
               value={data}
-              onChange={(e) => setData(dayjs(e))}
               name="data"
               label="Data"
               slotProps={{
@@ -180,14 +315,23 @@ const RegistrarJustificativa = () => {
             {periodosError && "Selecione ao menos um período"}
           </FormHelperText>
         </Stack>
-        <Stack direction={"row"} sx={{ mt: "1.5rem" }}>
+        <Stack direction={"row"} sx={{ mt: "1.5rem" }} gap={"1rem"}>
           <Box sx={{ flexGrow: 1 }} />
+          {justificativa && (
+            <Button
+              variant="contained"
+              onClick={handleExcluir}
+              disabled={isExcluindo}
+            >
+              {isExcluindo ? "Excluindo..." : "Excluir"}
+            </Button>
+          )}
           <Button
             variant="contained"
-            onClick={handleCadastrar}
-            disabled={isCadastrando}
+            onClick={justificativa ? handleEditar : handleCadastrar}
+            disabled={isCadastrando || isEditando || isBuscandoJustificativa}
           >
-            {isCadastrando ? "Registrando..." : "Registrar"}
+            {isCadastrando || isEditando ? "Registrando..." : "Registrar"}
           </Button>
         </Stack>
       </FormGroup>

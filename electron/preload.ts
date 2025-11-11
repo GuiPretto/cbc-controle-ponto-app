@@ -1,6 +1,9 @@
 import { ipcRenderer, contextBridge } from "electron";
 import { UsuarioPageParams } from "./services/UsuarioService";
-import { RegisterJustificativaDto } from "./services/JustificativaService";
+import {
+  RegisterJustificativaDto,
+  UpdateJustificativaDto,
+} from "./services/JustificativaService";
 import {
   GradePageParams,
   RegisterGradeDto,
@@ -116,8 +119,14 @@ contextBridge.exposeInMainWorld("api", {
       ),
   },
   justificativa: {
+    getByUserAndDate: (idUsuario: number, data: string) =>
+      ipcRenderer.invoke("justificativa:get-by-user-and-date", idUsuario, data),
     register: (params: RegisterJustificativaDto) =>
       ipcRenderer.invoke("justificativa:register", params),
+    update: (params: UpdateJustificativaDto) =>
+      ipcRenderer.invoke("justificativa:update", params),
+    delete: (idJustificativa: number) =>
+      ipcRenderer.invoke("justificativa:delete", idJustificativa),
   },
   download: {
     savePdf: (data: ArrayBuffer, defaultName: string) =>
