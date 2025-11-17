@@ -158,6 +158,7 @@ const ListarFuncionarios = () => {
       getActions: (params) => {
         const isActive = params.row.ativo;
         const id = params.row.id;
+        const isMaster = params.row.master;
         return [
           <GridActionsCellItem
             icon={
@@ -168,7 +169,7 @@ const ListarFuncionarios = () => {
               )
             }
             label={isActive ? "Inativar" : "Ativar"}
-            disabled={role !== "MASTER"}
+            disabled={role !== "MASTER" || isMaster}
             onClick={() => {
               if (isActive) {
                 handleDeactivate(id);

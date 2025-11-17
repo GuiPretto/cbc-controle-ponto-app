@@ -72,7 +72,7 @@ export const useGetUsuarioPage = (params: UsuarioPageParams) => {
 
     placeholderData: (previousData) => previousData,
 
-    staleTime: 1000 * 60 * 1,
+    staleTime: 0,
   });
 };
 

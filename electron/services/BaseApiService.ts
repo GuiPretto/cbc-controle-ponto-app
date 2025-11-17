@@ -8,29 +8,26 @@ export interface UserInfo {
   role: string;
   requerTrocarSenha: boolean;
   idGrade: number;
-  // Adicione mais campos do usuário aqui
 }
 
 export interface SpringPage<T> {
-  content: T[]; // A lista real de dados (usuários)
+  content: T[];
   totalPages: number;
   totalElements: number;
-  number: number; // Número da página atual (baseado em 0)
-  size: number; // Tamanho da página
+  number: number;
+  size: number;
   last: boolean;
   first: boolean;
 }
 
-const API_URL = process.env.API_BASE_URL || "http://localhost:8080";
-const SERVICE_NAME = process.env.KEYTAR_SERVICE_NAME || "SERVICE_NAME";
+const API_URL = "http://192.168.1.9:8081";
+const SERVICE_NAME = "CBC_App_Electron";
 
-// Variáveis de Estado (mantidas no escopo do módulo para acesso seguro)
 let accessToken: string | null = null;
 let currentIdUser: string | null = null;
 let isRefreshing = false;
 let logoutTrigger: (() => void) | undefined;
 
-// Função para injetar o mecanismo de envio IPC
 export function setLogoutTrigger(trigger: () => void): void {
   logoutTrigger = trigger;
 }
@@ -59,19 +56,19 @@ async function refreshAccessToken(client: AxiosInstance): Promise<boolean> {
     );
 
     const { accessToken: newAccessToken } = response.data;
-
     accessToken = newAccessToken;
     isRefreshing = false;
     return true;
   } catch (error) {
     console.error("Falha no Refresh Token. Forçando Logout.", error);
-    // Limpa tokens em caso de falha no refresh
+
     if (currentIdUser) {
       keytar.deletePassword(SERVICE_NAME, currentIdUser);
     }
     if (logoutTrigger) {
       logoutTrigger();
     }
+
     accessToken = null;
     currentIdUser = null;
     isRefreshing = false;
@@ -80,18 +77,16 @@ async function refreshAccessToken(client: AxiosInstance): Promise<boolean> {
 }
 
 class BaseApiService {
-  protected client: AxiosInstance; // 'protected' permite que classes filhas acessem
-
+  protected client: AxiosInstance;
   private readonly baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.API_BASE_URL || "http://localhost:8080";
+    this.baseUrl = API_URL;
     this.client = axios.create({
       baseURL: this.baseUrl,
       timeout: 10000,
     });
 
-    // Interceptor de Requisição (Injeta o Access Token)
     this.client.interceptors.request.use(
       (config) => {
         if (accessToken && !config.url?.match("refresh-token")) {
@@ -99,12 +94,9 @@ class BaseApiService {
         }
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
-    // Interceptor de Resposta (Lida com Erros e 401)
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       async (error) => {
@@ -125,8 +117,7 @@ class BaseApiService {
           }
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const errorResponse: ServiceResponse<any> = {
+        const errorResponse: ServiceResponse<unknown> = {
           success: false,
           error: error.response?.data || error.message,
           status: status,
@@ -135,8 +126,6 @@ class BaseApiService {
       }
     );
   }
-
-  // --- Métodos de Infraestrutura (Autenticação) ---
 
   getIsAuthenticated(): boolean {
     return accessToken !== null;
@@ -161,6 +150,7 @@ class BaseApiService {
         requerTrocarSenha,
         idGrade,
       } = response.data;
+
       accessToken = accessTokenResponse;
       currentIdUser = idUser.toString();
 
@@ -176,13 +166,12 @@ class BaseApiService {
           id: idUser,
           username: usernameResponse,
           role: role,
-          requerTrocarSenha: requerTrocarSenha,
+          requerTrocarSenha,
           idGrade,
         },
       };
     } catch (error: unknown) {
       const mappedError = this.handleApiError(error);
-
       return {
         success: mappedError.success,
         error: mappedError.error,
@@ -218,13 +207,10 @@ class BaseApiService {
   }
 
   protected handleApiError(error: unknown): ServiceResponse<unknown> {
-    // Verifica se o erro é uma ServiceResponse padronizada (vindo do interceptor)
     if (typeof error === "object" && error !== null && "success" in error) {
-      // Se for, apenas retorna (com ServiceResponse<unknown>)
       return error as ServiceResponse<unknown>;
     }
 
-    // Se for um erro do Axios (não padronizado)
     if (axios.isAxiosError(error)) {
       const errorData =
         (error.response?.data as { message?: string; error?: string }) || {};
@@ -235,7 +221,6 @@ class BaseApiService {
       };
     }
 
-    // Erro desconhecido (devemos usar Type Guard para extrair a mensagem)
     const errorMessage =
       error instanceof Error
         ? error.message
